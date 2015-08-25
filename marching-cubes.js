@@ -1,4 +1,3 @@
-
 /////////////////////////////////////
 // Marching cubes lookup tables
 /////////////////////////////////////
@@ -299,3 +298,34 @@ PROCED.triTable = new Int32Array([
 0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ]);
+
+//float3 vertexInterp(float isoLevel, float3 v0, float l0, float3 v1, float l1){
+function vertexInterp(isoLevel, v0, l0, v1, l1){
+    //float lerper = (isoLevel - l0) / (l1 - l0);
+    //return lerp(v0, v1, lerper);
+    var lerper = (isoLevel - l0) / (l1 - l0);
+    return lerp(v0, v1, lerper);
+}
+
+function lerp(v0, v1, t) {
+    return v0 * (1 - t) + v1 * t;
+}
+
+function polygonise(grid, isolevel, triangles) {
+    var cubeIndex = 0;
+    if (grid.val[0] < isolevel) cubeindex |= 1;
+    if (grid.val[1] < isolevel) cubeindex |= 2;
+    if (grid.val[2] < isolevel) cubeindex |= 4;
+    if (grid.val[3] < isolevel) cubeindex |= 8;
+    if (grid.val[4] < isolevel) cubeindex |= 16;
+    if (grid.val[5] < isolevel) cubeindex |= 32;
+    if (grid.val[6] < isolevel) cubeindex |= 64;
+    if (grid.val[7] < isolevel) cubeindex |= 128;
+
+    if(edgeTable[cubeIndex] === 0) {
+        return 0;
+    }
+
+    edgeTable[cubeIndex] & 1 ? console.log('ses') : console.log('sus');
+}
+
