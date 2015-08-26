@@ -6,6 +6,7 @@ pc.script.create('procedural', function (app) {
 
     ProceduralObject.prototype = {
         initialize: function () {
+            width = height = depth = 64;
         },
         update: function() {
         }
@@ -36,6 +37,11 @@ function createSphere() {
             } 
         } 
     } 
+    return data;
+}
+
+function getCubeAtPos(x, y, z) {
+    
 }
 
 function getDistance(p1, p2) {
