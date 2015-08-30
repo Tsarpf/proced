@@ -318,14 +318,14 @@ PROCED.lerp = function(v0, v1, t) {
 
 PROCED.polygonize = function(grid, isolevel, triangles) {
     var cubeIndex = 0;
-    if (grid.val[0] < isolevel) cubeindex |= 1;
-    if (grid.val[1] < isolevel) cubeindex |= 2;
-    if (grid.val[2] < isolevel) cubeindex |= 4;
-    if (grid.val[3] < isolevel) cubeindex |= 8;
-    if (grid.val[4] < isolevel) cubeindex |= 16;
-    if (grid.val[5] < isolevel) cubeindex |= 32;
-    if (grid.val[6] < isolevel) cubeindex |= 64;
-    if (grid.val[7] < isolevel) cubeindex |= 128;
+    if (grid[0].val < isolevel) cubeindex |= 1;
+    if (grid[1].val < isolevel) cubeindex |= 2;
+    if (grid[2].val < isolevel) cubeindex |= 4;
+    if (grid[3].val < isolevel) cubeindex |= 8;
+    if (grid[4].val < isolevel) cubeindex |= 16;
+    if (grid[5].val < isolevel) cubeindex |= 32;
+    if (grid[6].val < isolevel) cubeindex |= 64;
+    if (grid[7].val < isolevel) cubeindex |= 128;
 
     if(edgeTable[cubeIndex] === 0) {
         return 0;
