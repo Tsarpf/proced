@@ -309,10 +309,14 @@ PROCED.vertexInterp = function(isoLevel, v0, v1, l0, l1)
 }
 
 PROCED.lerp = function(v0, v1, t) {
-    return v0 * (1 - t) + v1 * t;
+    var obj = {};
+    obj.x = v0.x * (1 - t) + v0.x * t;
+    obj.y = v0.y * (1 - t) + v0.y * t;
+    obj.z = v0.z * (1 - t) + v0.z * t;
+    return obj;
 }
 
-PROCED.polygonise = function(grid, isolevel, triangles) {
+PROCED.polygonize = function(grid, isolevel, triangles) {
     var cubeIndex = 0;
     if (grid.val[0] < isolevel) cubeindex |= 1;
     if (grid.val[1] < isolevel) cubeindex |= 2;
