@@ -1,4 +1,4 @@
-var width, height, depth;
+var width, height, depth, isolevel;
 pc.script.create('procedural', function (app) {
     var ProceduralObject = function (entity) {
         this.entity = entity;
@@ -7,6 +7,7 @@ pc.script.create('procedural', function (app) {
     ProceduralObject.prototype = {
         initialize: function () {
             width = height = depth = 64;
+            isolevel = 0.5;
         },
         update: function() {
         }
@@ -24,6 +25,7 @@ function createSphere() {
         y: height / 2,
         z: depth / 2
     }
+    //We can reuse the variable since it's not passed outside this function 
     pos = {
         x: 0, y: 0, z: 0
     } 
@@ -40,8 +42,95 @@ function createSphere() {
     return data;
 }
 
-function getCubeAtPos(x, y, z) {
-    
+function getCubeAtPos(x, y, z, vals) {
+    var cube = [];
+    cube[0] = {
+        pos: {
+            x: x,
+            y: y,
+            z: z
+        },
+        val: vals[getIdx(x,y,z)]
+    }
+    cube[1] = {
+        pos: {
+            x: x + 1,
+            y: y,
+            z: z
+        },
+        val: vals[getIdx(x + 1,y,z)]
+    }
+    cube[2] = {
+        pos: {
+            x: x + 1,
+            y: y,
+            z: z + 1
+        },
+        val: vals[getIdx(x + 1,y,z + 1)]
+    }
+    cube[3] = {
+        pos: {
+            x: x,
+            y: y,
+            z: z + 1
+        },
+        val: vals[getIdx(x,y,z + 1)]
+    }
+    cube[4] = {
+        pos: {
+            x: x,
+            y: y + 1,
+            z: z
+        },
+        val: vals[getIdx(x,y + 1, z)]
+    }
+    cube[5] = {
+        pos: {
+            x: x + 1,
+            y: y + 1,
+            z: z
+        },
+        val: vals[getIdx(x + 1,y + 1,z)]
+    }
+    cube[6] = {
+        pos: {
+            x: x + 1,
+            y: y + 1,
+            z: z + 1
+        },
+        val: vals[getIdx(x + 1, y + 1, z + 1)]
+    }
+    cube[7] = {
+        pos: {
+            x: x,
+            y: y + 1,
+            z: z + 1
+        },
+        val: vals[getIdx(x,y + 1, z + 1)]
+    }
+
+    return cube;
+}
+
+function getThang() {
+    var vals = createSphere();
+    var triangles = [];
+
+    //subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
+    for(var z = 0; z < depth - 1; z++) {
+        for(var y = 0; y < height - 1; y++) {
+            for(var x = 0; x < width - 1; x++) {
+                var cube = getCubeAtPos(x,y,z, vals);
+                var cubeTris = [];
+                var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
+                for(var i = 0; i < ntriangles; i++) {
+                    triangles.push(cubeTris[i]);
+                }
+                console.log(ntriangles);
+            }
+        }
+    }
+    //draw triangles
 }
 
 function getDistance(p1, p2) {
