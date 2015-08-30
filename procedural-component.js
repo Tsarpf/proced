@@ -8,6 +8,61 @@ pc.script.create('procedural', function (app) {
         initialize: function () {
             width = height = depth = 64;
             isolevel = 0.5;
+            var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
+                    semantic: pc.SEMANTIC_POSITION,
+                    components: 3,
+                    type: pc.ELEMENTTYPE_FLOAT32
+                }
+            ]);
+
+            //Marching etc done at this point
+            var vertexArray = getTriangles();
+
+            var vertexBuffer = new pc.VertexBuffer(
+                app.graphicsDevice,
+                format,
+                vertexArray.length,
+                pc.BUFFER_STATIC
+            );
+
+            var vertices = new Float32Array(vertexBuffer.lock());
+
+            vertices.set(vertexArray);
+            vertexBuffer.unlock();
+
+            var mesh = new pc.Mesh();
+            mesh.vertexBuffer = vertexBuffer;
+            mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
+
+            //TODO: what's this I don't even?
+            mesh.primitive[0].base = 0;
+
+            mesh.primitive[0].count = vertexArray.length / 3;
+
+            //Probably leaving this undefined would suffice. But since I couldn't find any docs about this right now let's just be safe
+            mesh.primitive[0].indexed = false;
+
+            var node = new pc.GraphNode();
+            var material = new pc.BasicMaterial();
+            var meshInstance = new pc.MeshInstance(node, mesh, material);
+
+            var model = new pc.Model();
+            model.graph = node;
+            model.meshInstances = [meshInstance];
+
+            app.systems.model.addComponent(this.entity, {
+                type: 'asset'
+            });
+            this.entity.model.model = model;
+
+            app.systems.rigidbody.addComponent(this.entity, {
+                type: 'static'
+            });
+            app.systems.collision.addComponent(this.entity, {
+                type: 'mesh'
+            });
+            this.entity.collision.model = model;
+            app.systems.collision.implementations.mesh.doRecreatePhysicalShape(this.entity.collision);
         },
         update: function() {
         }
@@ -112,7 +167,7 @@ function getCubeAtPos(x, y, z, vals) {
     return cube;
 }
 
-function getThang() {
+function getTriangles() {
     var vals = createSphere();
     var triangles = [];
 
@@ -130,7 +185,7 @@ function getThang() {
             }
         }
     }
-    //draw triangles
+    return triangles;
 }
 
 function getDistance(p1, p2) {
