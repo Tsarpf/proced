@@ -409,6 +409,7 @@ function getTriTableValue(i, j) {
         return -1;
     }
 
-    return triTable[255 * i + j];
+    //return triTable[255 * i + j];
+    return triTable[255 * j + i];
 }
 
