@@ -20,7 +20,7 @@ pc.script.create('procedural', function (app) {
 
             var vertexBuffer = new pc.VertexBuffer(
                 app.graphicsDevice,
-                format,
+                vertexFormat,
                 vertexArray.length,
                 pc.BUFFER_STATIC
             );
