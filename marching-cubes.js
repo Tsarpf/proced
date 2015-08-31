@@ -377,27 +377,10 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
    /* Create the triangle */
    ntriang = 0;
    for (i=0; getTriTableValue(cubeIndex, i) != -1; i+=3) {
-   //for (i=0; triTable[cubeIndex][i]; i+=3) {
-       console.log('loopin');
-      /*
-      triangles[ntriang] = {
-          p: [
-            vertlist[triTable[cubeIndex][i  ]],
-            vertlist[triTable[cubeIndex][i+1]],
-            vertlist[triTable[cubeIndex][i+2]]
-          ]
-      }      
-      */
-      /*
-      triangles[ntriang].p[0] = vertlist[triTable[cubeIndex][i  ]];
-      triangles[ntriang].p[1] = 
-      triangles[ntriang].p[2] = 
-      */
-
-      triangles.push(vertlist[getTriTableValue(cubeIndex,i  )]);
-      triangles.push(vertlist[getTriTableValue(cubeIndex,i + 1)]);
-      triangles.push(vertlist[getTriTableValue(cubeIndex,i + 2)]);
-      ntriang++;
+       triangles.push(vertlist[getTriTableValue(cubeIndex,i  )]);
+       triangles.push(vertlist[getTriTableValue(cubeIndex,i + 1)]);
+       triangles.push(vertlist[getTriTableValue(cubeIndex,i + 2)]);
+       ntriang++;
    }
 
    return ntriang;
@@ -406,10 +389,13 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
 
 function getTriTableValue(i, j) {
     if( i >= 256 || j >= 16) {
+        console.log('too big!');
         return -1;
     }
 
     //return triTable[255 * i + j];
-    return triTable[255 * j + i];
+    //var ses = triTable[255 * j + i];
+    var val = triTable[16 * i + j];
+    return val;
 }
 

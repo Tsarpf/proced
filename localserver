@@ -1,0 +1,4 @@
+!/bin/sh
+# Start a python web server in the current directory serving on port 51000
+#python -m SimpleHTTPServer 51000
+python3 -m http.server 51000
