@@ -16,7 +16,7 @@ pc.script.create('procedural', function (app) {
             ]);
 
             //Marching etc done at this point
-            var vertexArray = getTriangles();
+            var vertexArray = getVertices();
 
             var vertexBuffer = new pc.VertexBuffer(
                 app.graphicsDevice,
