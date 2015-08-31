@@ -377,9 +377,24 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
    /* Create the triangle */
    ntriang = 0;
    for (i=0;triTable[cubeIndex][i]!=-1;i+=3) {
+      /*
+      triangles[ntriang] = {
+          p: [
+            vertlist[triTable[cubeIndex][i  ]],
+            vertlist[triTable[cubeIndex][i+1]],
+            vertlist[triTable[cubeIndex][i+2]]
+          ]
+      }      
+      */
+      /*
       triangles[ntriang].p[0] = vertlist[triTable[cubeIndex][i  ]];
-      triangles[ntriang].p[1] = vertlist[triTable[cubeIndex][i+1]];
-      triangles[ntriang].p[2] = vertlist[triTable[cubeIndex][i+2]];
+      triangles[ntriang].p[1] = 
+      triangles[ntriang].p[2] = 
+      */
+
+      triangles.push(vertlist[triTable[cubeIndex][i  ]]);
+      triangles.push(vertlist[triTable[cubeIndex][i + 1]]);
+      triangles.push(vertlist[triTable[cubeIndex][i + 2 ]]);
       ntriang++;
    }
 
