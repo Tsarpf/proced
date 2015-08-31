@@ -168,9 +168,9 @@ function getCubeAtPos(x, y, z, vals) {
     return cube;
 }
 
-function getTriangles() {
+function getVertices() {
     var vals = createSphere();
-    var triangles = [];
+    var vertices = [];
 
     //subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
     for(var z = 0; z < depth - 1; z++) {
@@ -179,14 +179,14 @@ function getTriangles() {
                 var cube = getCubeAtPos(x,y,z, vals);
                 var cubeTris = [];
                 var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
-                for(var i = 0; i < ntriangles; i++) {
-                    triangles.push(cubeTris[i]);
+                for(var i = 0; i < ntriangles * 3; i++) {
+                    vertices.push(cubeTris[i]);
                 }
-                console.log(ntriangles);
+                //console.log(ntriangles);
             }
         }
     }
-    return triangles;
+    return vertices;
 }
 
 function getDistance(p1, p2) {
