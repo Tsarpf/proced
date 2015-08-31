@@ -55,9 +55,11 @@ pc.script.create('procedural', function (app) {
             });
             this.entity.model.model = model;
 
+            /*
             app.systems.rigidbody.addComponent(this.entity, {
                 type: 'static'
             });
+            */
             app.systems.collision.addComponent(this.entity, {
                 type: 'mesh'
             });
@@ -179,6 +181,9 @@ function getVertices() {
                 var cube = getCubeAtPos(x,y,z, vals);
                 var cubeTris = [];
                 var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
+                console.log(ntriangles);
+                console.log(cubeTris);
+                console.log(ntriangles * 3);
                 for(var i = 0; i < ntriangles * 3; i++) {
                     vertices.push(cubeTris[i]);
                 }
