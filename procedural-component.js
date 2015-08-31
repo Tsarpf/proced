@@ -91,6 +91,7 @@ function createSphere() {
                 result = 1 - (getDistance(pos, center) / maxDistance); 
                 idx = getIdx(x, y, z);
                 data[idx] = result; 
+                console.log(result);
             } 
         } 
     } 
