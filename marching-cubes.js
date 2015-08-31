@@ -302,13 +302,13 @@ triTable = new Int32Array([
 /* Interpolates between the given points by a specific amount
 Used to find the vertex position on the cube's edge*/
 //float3 vertexInterp(float isoLevel, float3 v0, float l0, float3 v1, float l1)
-PROCED.vertexInterp = function(isoLevel, v0, v1, l0, l1)
+vertexInterp = function(isoLevel, v0, v1, l0, l1)
 {
     var lerper = (isoLevel - l0) / (l1 - l0);
     return lerp(v0, v1, lerper);
 }
 
-PROCED.lerp = function(v0, v1, t) {
+lerp = function(v0, v1, t) {
     var obj = {};
     obj.x = v0.x * (1 - t) + v0.x * t;
     obj.y = v0.y * (1 - t) + v0.y * t;
