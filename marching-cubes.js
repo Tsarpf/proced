@@ -318,6 +318,9 @@ PROCED.lerp = function(v0, v1, t) {
 
 PROCED.polygonize = function(grid, isolevel, triangles) {
     var cubeIndex = 0;
+    var vertlist = [];
+
+
     if (grid[0].val < isolevel) cubeIndex |= 1;
     if (grid[1].val < isolevel) cubeIndex |= 2;
     if (grid[2].val < isolevel) cubeIndex |= 4;
