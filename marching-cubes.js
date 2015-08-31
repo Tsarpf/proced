@@ -376,7 +376,9 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
 
    /* Create the triangle */
    ntriang = 0;
-   for (i=0;triTable[cubeIndex][i]!=-1;i+=3) {
+   for (i=0; getTriTableValue(cubeIndex, i) != -1; i+=3) {
+   //for (i=0; triTable[cubeIndex][i]; i+=3) {
+       console.log('loopin');
       /*
       triangles[ntriang] = {
           p: [
@@ -392,13 +394,21 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
       triangles[ntriang].p[2] = 
       */
 
-      triangles.push(vertlist[triTable[cubeIndex][i  ]]);
-      triangles.push(vertlist[triTable[cubeIndex][i + 1]]);
-      triangles.push(vertlist[triTable[cubeIndex][i + 2 ]]);
+      triangles.push(vertlist[getTriTableValue(cubeIndex,i  )]);
+      triangles.push(vertlist[getTriTableValue(cubeIndex,i + 1)]);
+      triangles.push(vertlist[getTriTableValue(cubeIndex,i + 2)]);
       ntriang++;
    }
 
    return ntriang;
 
+}
+
+function getTriTableValue(i, j) {
+    if( i >= 256 || j >= 16) {
+        return -1;
+    }
+
+    return triTable[255 * i + j];
 }
 
