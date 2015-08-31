@@ -6,7 +6,7 @@ pc.script.create('procedural', function (app) {
 
     ProceduralObject.prototype = {
         initialize: function () {
-            width = height = depth = 64;
+            width = height = depth = 8;
             isolevel = 0.5;
             var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
                     semantic: pc.SEMANTIC_POSITION,
