@@ -334,49 +334,49 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
     //this might be shorter way to write it
     //edgeTable[cubeIndex] & 1 ? console.log('ses') : console.log('sus');
    /* Find the vertices where the surface intersects the cube */
-   if (edgeTable[cubeindex] & 1)
+   if (edgeTable[cubeIndex] & 1)
       vertlist[0] =
          vertexInterp(isolevel,grid[0].pos,grid[1].pos,grid[0].val,grid[1].val);
-   if (edgeTable[cubeindex] & 2)
+   if (edgeTable[cubeIndex] & 2)
       vertlist[1] =
          vertexInterp(isolevel,grid[1].pos,grid[2].pos,grid[1].val,grid[2].val);
-   if (edgeTable[cubeindex] & 4)
+   if (edgeTable[cubeIndex] & 4)
       vertlist[2] =
          vertexInterp(isolevel,grid[2].pos,grid[3].pos,grid[2].val,grid[3].val);
-   if (edgeTable[cubeindex] & 8)
+   if (edgeTable[cubeIndex] & 8)
       vertlist[3] =
          vertexInterp(isolevel,grid[3].pos,grid[0].pos,grid[3].val,grid[0].val);
-   if (edgeTable[cubeindex] & 16)
+   if (edgeTable[cubeIndex] & 16)
       vertlist[4] =
          vertexInterp(isolevel,grid[4].pos,grid[5].pos,grid[4].val,grid[5].val);
-   if (edgeTable[cubeindex] & 32)
+   if (edgeTable[cubeIndex] & 32)
       vertlist[5] =
          vertexInterp(isolevel,grid[5].pos,grid[6].pos,grid[5].val,grid[6].val);
-   if (edgeTable[cubeindex] & 64)
+   if (edgeTable[cubeIndex] & 64)
       vertlist[6] =
          vertexInterp(isolevel,grid[6].pos,grid[7].pos,grid[6].val,grid[7].val);
-   if (edgeTable[cubeindex] & 128)
+   if (edgeTable[cubeIndex] & 128)
       vertlist[7] =
          vertexInterp(isolevel,grid[7].pos,grid[4].pos,grid[7].val,grid[4].val);
-   if (edgeTable[cubeindex] & 256)
+   if (edgeTable[cubeIndex] & 256)
       vertlist[8] =
          vertexInterp(isolevel,grid[0].pos,grid[4].pos,grid[0].val,grid[4].val);
-   if (edgeTable[cubeindex] & 512)
+   if (edgeTable[cubeIndex] & 512)
       vertlist[9] =
          vertexInterp(isolevel,grid[1].pos,grid[5].pos,grid[1].val,grid[5].val);
-   if (edgeTable[cubeindex] & 1024)
+   if (edgeTable[cubeIndex] & 1024)
       vertlist[10] =
          vertexInterp(isolevel,grid[2].pos,grid[6].pos,grid[2].val,grid[6].val);
-   if (edgeTable[cubeindex] & 2048)
+   if (edgeTable[cubeIndex] & 2048)
       vertlist[11] =
          vertexInterp(isolevel,grid[3].pos,grid[7].pos,grid[3].val,grid[7].val);
 
    /* Create the triangle */
    ntriang = 0;
-   for (i=0;triTable[cubeindex][i]!=-1;i+=3) {
-      triangles[ntriang].p[0] = vertlist[triTable[cubeindex][i  ]];
-      triangles[ntriang].p[1] = vertlist[triTable[cubeindex][i+1]];
-      triangles[ntriang].p[2] = vertlist[triTable[cubeindex][i+2]];
+   for (i=0;triTable[cubeIndex][i]!=-1;i+=3) {
+      triangles[ntriang].p[0] = vertlist[triTable[cubeIndex][i  ]];
+      triangles[ntriang].p[1] = vertlist[triTable[cubeIndex][i+1]];
+      triangles[ntriang].p[2] = vertlist[triTable[cubeIndex][i+2]];
       ntriang++;
    }
 
