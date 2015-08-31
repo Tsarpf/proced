@@ -336,40 +336,40 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
    /* Find the vertices where the surface intersects the cube */
    if (edgeTable[cubeindex] & 1)
       vertlist[0] =
-         vertexInterp(isolevel,grid.p[0],grid.p[1],grid.val[0],grid.val[1]);
+         vertexInterp(isolevel,grid[0].pos,grid[1].pos,grid[0].val,grid[1].val);
    if (edgeTable[cubeindex] & 2)
       vertlist[1] =
-         vertexInterp(isolevel,grid.p[1],grid.p[2],grid.val[1],grid.val[2]);
+         vertexInterp(isolevel,grid[1].pos,grid[2].pos,grid[1].val,grid[2].val);
    if (edgeTable[cubeindex] & 4)
       vertlist[2] =
-         vertexInterp(isolevel,grid.p[2],grid.p[3],grid.val[2],grid.val[3]);
+         vertexInterp(isolevel,grid[2].pos,grid[3].pos,grid[2].val,grid[3].val);
    if (edgeTable[cubeindex] & 8)
       vertlist[3] =
-         vertexInterp(isolevel,grid.p[3],grid.p[0],grid.val[3],grid.val[0]);
+         vertexInterp(isolevel,grid[3].pos,grid[0].pos,grid[3].val,grid[0].val);
    if (edgeTable[cubeindex] & 16)
       vertlist[4] =
-         vertexInterp(isolevel,grid.p[4],grid.p[5],grid.val[4],grid.val[5]);
+         vertexInterp(isolevel,grid[4].pos,grid[5].pos,grid[4].val,grid[5].val);
    if (edgeTable[cubeindex] & 32)
       vertlist[5] =
-         vertexInterp(isolevel,grid.p[5],grid.p[6],grid.val[5],grid.val[6]);
+         vertexInterp(isolevel,grid[5].pos,grid[6].pos,grid[5].val,grid[6].val);
    if (edgeTable[cubeindex] & 64)
       vertlist[6] =
-         vertexInterp(isolevel,grid.p[6],grid.p[7],grid.val[6],grid.val[7]);
+         vertexInterp(isolevel,grid[6].pos,grid[7].pos,grid[6].val,grid[7].val);
    if (edgeTable[cubeindex] & 128)
       vertlist[7] =
-         vertexInterp(isolevel,grid.p[7],grid.p[4],grid.val[7],grid.val[4]);
+         vertexInterp(isolevel,grid[7].pos,grid[4].pos,grid[7].val,grid[4].val);
    if (edgeTable[cubeindex] & 256)
       vertlist[8] =
-         vertexInterp(isolevel,grid.p[0],grid.p[4],grid.val[0],grid.val[4]);
+         vertexInterp(isolevel,grid[0].pos,grid[4].pos,grid[0].val,grid[4].val);
    if (edgeTable[cubeindex] & 512)
       vertlist[9] =
-         vertexInterp(isolevel,grid.p[1],grid.p[5],grid.val[1],grid.val[5]);
+         vertexInterp(isolevel,grid[1].pos,grid[5].pos,grid[1].val,grid[5].val);
    if (edgeTable[cubeindex] & 1024)
       vertlist[10] =
-         vertexInterp(isolevel,grid.p[2],grid.p[6],grid.val[2],grid.val[6]);
+         vertexInterp(isolevel,grid[2].pos,grid[6].pos,grid[2].val,grid[6].val);
    if (edgeTable[cubeindex] & 2048)
       vertlist[11] =
-         vertexInterp(isolevel,grid.p[3],grid.p[7],grid.val[3],grid.val[7]);
+         vertexInterp(isolevel,grid[3].pos,grid[7].pos,grid[3].val,grid[7].val);
 
    /* Create the triangle */
    ntriang = 0;
