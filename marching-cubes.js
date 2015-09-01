@@ -310,9 +310,9 @@ vertexInterp = function(isoLevel, v0, v1, l0, l1)
 
 lerp = function(v0, v1, t) {
     var obj = {};
-    obj.x = v0.x * (1 - t) + v0.x * t;
-    obj.y = v0.y * (1 - t) + v0.y * t;
-    obj.z = v0.z * (1 - t) + v0.z * t;
+    obj.x = v0.x * (1 - t) + v1.x * t;
+    obj.y = v0.y * (1 - t) + v1.y * t;
+    obj.z = v0.z * (1 - t) + v1.z * t;
     return obj;
 }
 
@@ -376,10 +376,21 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
 
    /* Create the triangle */
    ntriang = 0;
-   for (i=0; getTriTableValue(cubeIndex, i) != -1; i+=3) {
-       triangles.push(vertlist[getTriTableValue(cubeIndex,i  )]);
-       triangles.push(vertlist[getTriTableValue(cubeIndex,i + 1)]);
-       triangles.push(vertlist[getTriTableValue(cubeIndex,i + 2)]);
+   for (var i=0; getTriTableValue(cubeIndex, i) != -1; i+=3) {
+       var vert;
+
+       vert = vertlist[getTriTableValue(cubeIndex, i)];
+       console.log(vert);
+       triangles.push(vert.x, vert.y, vert.z);
+
+       vert = vertlist[getTriTableValue(cubeIndex, i + 1)];
+       console.log(vert);
+       triangles.push(vert.x, vert.y, vert.z);
+
+       vert = vertlist[getTriTableValue(cubeIndex, i + 2)];
+       console.log(vert);
+       triangles.push(vert.x, vert.y, vert.z);
+
        ntriang++;
    }
 

@@ -7,7 +7,7 @@ pc.script.create('procedural', function (app) {
     ProceduralObject.prototype = {
         initialize: function () {
             width = height = depth = 8;
-            isolevel = 0.0;
+            isolevel = 1.0;
             var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
                     semantic: pc.SEMANTIC_POSITION,
                     components: 3,
@@ -28,13 +28,15 @@ pc.script.create('procedural', function (app) {
             var vertices = new Float32Array(vertexBuffer.lock());
 
             vertices.set(vertexArray);
+            console.log(vertexArray);
+            console.log(vertexArray.length);
             vertexBuffer.unlock();
 
             var mesh = new pc.Mesh();
             mesh.vertexBuffer = vertexBuffer;
             mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
 
-            //TODO: what's this I don't even?
+            //what's this I don't even?
             mesh.primitive[0].base = 0;
 
             mesh.primitive[0].count = vertexArray.length / 3;
@@ -44,22 +46,29 @@ pc.script.create('procedural', function (app) {
 
             var node = new pc.GraphNode();
             var material = new pc.BasicMaterial();
+            console.log(material);
+            material.cull = 0;
+            //material.vertexColors = true;
             var meshInstance = new pc.MeshInstance(node, mesh, material);
 
             var model = new pc.Model();
             model.graph = node;
             model.meshInstances = [meshInstance];
 
+            /*
+             * These don't work without an index buffer :(
+            model.generateWireframe();
+            model.meshInstances[0].renderStyle = pc.RENDERSTYLE_WIREFRAME;
+            */
+
             app.systems.model.addComponent(this.entity, {
                 type: 'asset'
             });
             this.entity.model.model = model;
 
-            /*
             app.systems.rigidbody.addComponent(this.entity, {
                 type: 'static'
             });
-            */
             app.systems.collision.addComponent(this.entity, {
                 type: 'mesh'
             });
@@ -96,6 +105,20 @@ function createSphere() {
             } 
         } 
     } 
+    return data;
+}
+
+function createTest() {
+    var data = [];
+    for(var z = 0; z < depth; z++) {
+        for(var y = 0; y < height; y++) {
+            for(var x = 0; x < width; x++) {
+                idx = getIdx(x, y, z);
+                var val = y / height + x / width;
+                data[idx] = val;
+            }
+        }
+    }
     return data;
 }
 
@@ -170,7 +193,8 @@ function getCubeAtPos(x, y, z, vals) {
 }
 
 function getVertices() {
-    var vals = createSphere();
+    var vals = createTest();
+    //var vals = createSphere();
     var vertices = [];
 
     //subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
@@ -180,8 +204,11 @@ function getVertices() {
                 var cube = getCubeAtPos(x,y,z, vals);
                 var cubeTris = [];
                 var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
-                for(var i = 0; i < ntriangles * 3; i++) {
+                var count = 0;
+                for(var i = 0; i < ntriangles * 3; i += 3){
                     vertices.push(cubeTris[i]);
+                    vertices.push(cubeTris[i+1]);
+                    vertices.push(cubeTris[i+2]);
                 }
             }
         }
