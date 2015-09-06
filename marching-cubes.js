@@ -334,8 +334,6 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
         return 0;
     }
 
-    //this might be shorter way to write it
-    //edgeTable[cubeIndex] & 1 ? console.log('ses') : console.log('sus');
    /* Find the vertices where the surface intersects the cube */
    if (edgeTable[cubeIndex] & 1)
       vertlist[0] =
@@ -380,15 +378,12 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
        var vert;
 
        vert = vertlist[getTriTableValue(cubeIndex, i)];
-       console.log(vert);
        triangles.push(vert.x, vert.y, vert.z);
 
        vert = vertlist[getTriTableValue(cubeIndex, i + 1)];
-       console.log(vert);
        triangles.push(vert.x, vert.y, vert.z);
 
        vert = vertlist[getTriTableValue(cubeIndex, i + 2)];
-       console.log(vert);
        triangles.push(vert.x, vert.y, vert.z);
 
        ntriang++;
@@ -404,8 +399,6 @@ function getTriTableValue(i, j) {
         return -1;
     }
 
-    //return triTable[255 * i + j];
-    //var ses = triTable[255 * j + i];
     var val = triTable[16 * i + j];
     return val;
 }

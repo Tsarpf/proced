@@ -6,8 +6,8 @@ pc.script.create('procedural', function (app) {
 
     ProceduralObject.prototype = {
         initialize: function () {
-            width = height = depth = 8;
-            isolevel = 1.0;
+            width = height = depth = 16;
+            isolevel = 0.5;
             var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
                     semantic: pc.SEMANTIC_POSITION,
                     components: 3,
@@ -28,7 +28,7 @@ pc.script.create('procedural', function (app) {
             var vertices = new Float32Array(vertexBuffer.lock());
 
             vertices.set(vertexArray);
-            console.log(vertexArray);
+
             console.log(vertexArray.length);
             vertexBuffer.unlock();
 
@@ -46,8 +46,7 @@ pc.script.create('procedural', function (app) {
 
             var node = new pc.GraphNode();
             var material = new pc.BasicMaterial();
-            console.log(material);
-            material.cull = 0;
+            //material.cull = 0;
             //material.vertexColors = true;
             var meshInstance = new pc.MeshInstance(node, mesh, material);
 
@@ -108,6 +107,19 @@ function createSphere() {
     return data;
 }
 
+function createFlatTest() {
+    var data = [];
+    for(var z = 0; z < depth; z++) {
+        for(var y = 0; y < height; y++) {
+            for(var x = 0; x < width; x++) {
+                idx = getIdx(x, y, z);
+                var val = y / height;
+                data[idx] = val;
+            }
+        }
+    }
+    return data;
+}
 function createTest() {
     var data = [];
     for(var z = 0; z < depth; z++) {
@@ -193,8 +205,9 @@ function getCubeAtPos(x, y, z, vals) {
 }
 
 function getVertices() {
-    var vals = createTest();
-    //var vals = createSphere();
+    //var vals = createFlatTest();
+    //var vals = createtTest();
+    var vals = createSphere();
     var vertices = [];
 
     //subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
@@ -205,11 +218,9 @@ function getVertices() {
                 var cubeTris = [];
                 var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
                 var count = 0;
-                for(var i = 0; i < ntriangles * 3; i += 3){
-                    vertices.push(cubeTris[i]);
-                    vertices.push(cubeTris[i+1]);
-                    vertices.push(cubeTris[i+2]);
-                }
+				for(var i = 0; i < cubeTris.length; i++) {
+					vertices.push(cubeTris[i]);
+				}
             }
         }
     }
@@ -222,6 +233,33 @@ function getDistance(p1, p2) {
         Math.pow(p1.y - p2.y, 2) +
         Math.pow(p1.z - p2.z, 2)
     );
+}
+
+function debugPrint(array) {
+	/*	
+	var pos = [];
+    for(var z = 0; z < depth - 1; z++) {
+        for(var y = 0; y < height - 1; y++) {
+            for(var x = 0; x < width - 1; x++) {
+			 	pos.push(getIdx(x,y,z));
+				if(pos.length === 3) {
+					console.log(pos);
+					pos = [];
+				}
+			}
+		}
+	}
+	*/
+
+	var pos = [];
+	for(var i = 0; i < array.length; i++) {
+		pos.push(array[i]);
+		if(pos.length === 3) {
+			console.log(pos);
+			pos = [];
+		}
+
+	}
 }
 
 function getIdx(x, y, z) {
