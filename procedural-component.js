@@ -79,41 +79,26 @@ pc.script.create('procedural', function (app) {
     }
     return ProceduralObject;
 });
-
-function getVals(sampler) {
-    var result, idx, pos;
-    var data = [];
-    for(var z = 0; z < depth; z++) {
-        for(var y = 0; y < height; y++) {
-            for(var x = 0; x < width; x++) {
-				result = sampler(x, y, z);
-                idx = getIdx(x, y, z);
-                data[idx] = result; 
-            } 
-        } 
-    } 
-    return data;
-}
 function createSphere() {
 	return getVals(getSphereVal);
 }
 
 function createSlopeTest() {
-	function getSlopeVal(x, y, z) {
-		return y / height + x / width;
-	}
 
 	return getVals(getSlopeVal);
 }
 
 function createFlatTest() {
-	function getFlatVal(x, y, z) {
-		return y / height;
-	}
 
 	return getVals(getFlatVal);
 }
 
+function getSlopeVal(x, y, z) {
+	return y / height + x / width;
+}
+function getFlatVal(x, y, z) {
+	return y / height;
+}
 function getSphereVal(x, y, z) {
     var maxDistance = width / 2;
     var result, idx, pos;
@@ -130,87 +115,17 @@ function getSphereVal(x, y, z) {
 	return 1 - (getDistance(pos, center) / maxDistance); 
 }
 
-function getCubeAtPos(x, y, z, vals) {
-    var cube = [];
-    cube[0] = {
-        pos: {
-            x: x,
-            y: y,
-            z: z
-        },
-        val: vals[getIdx(x,y,z)]
-    }
-    cube[1] = {
-        pos: {
-            x: x + 1,
-            y: y,
-            z: z
-        },
-        val: vals[getIdx(x + 1,y,z)]
-    }
-    cube[2] = {
-        pos: {
-            x: x + 1,
-            y: y,
-            z: z + 1
-        },
-        val: vals[getIdx(x + 1,y,z + 1)]
-    }
-    cube[3] = {
-        pos: {
-            x: x,
-            y: y,
-            z: z + 1
-        },
-        val: vals[getIdx(x,y,z + 1)]
-    }
-    cube[4] = {
-        pos: {
-            x: x,
-            y: y + 1,
-            z: z
-        },
-        val: vals[getIdx(x,y + 1, z)]
-    }
-    cube[5] = {
-        pos: {
-            x: x + 1,
-            y: y + 1,
-            z: z
-        },
-        val: vals[getIdx(x + 1,y + 1,z)]
-    }
-    cube[6] = {
-        pos: {
-            x: x + 1,
-            y: y + 1,
-            z: z + 1
-        },
-        val: vals[getIdx(x + 1, y + 1, z + 1)]
-    }
-    cube[7] = {
-        pos: {
-            x: x,
-            y: y + 1,
-            z: z + 1
-        },
-        val: vals[getIdx(x,y + 1, z + 1)]
-    }
-
-    return cube;
-}
-
 function getVertices() {
-    //var vals = createFlatTest();
-    //var vals = createSlopeTest();
-    var vals = createSphere();
+	var sampler = getFlatVal;
+	//var sampler = getSphereVal;
+	//var sampler = getSlopeVal;
     var vertices = [];
 
     //subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
     for(var z = 0; z < depth - 1; z++) {
         for(var y = 0; y < height - 1; y++) {
             for(var x = 0; x < width - 1; x++) {
-                var cube = getCubeAtPos(x,y,z, vals);
+                var cube = getCubeAtPos(x,y,z, sampler);
                 var cubeTris = [];
                 var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
                 var count = 0;
@@ -221,6 +136,76 @@ function getVertices() {
         }
     }
     return vertices;
+}
+
+function getCubeAtPos(x, y, z, sampler) {
+    var cube = [];
+    cube[0] = {
+        pos: {
+            x: x,
+            y: y,
+            z: z
+        },
+        val: sampler(x,y,z)
+    }
+    cube[1] = {
+        pos: {
+            x: x + 1,
+            y: y,
+            z: z
+        },
+        val: sampler(x + 1,y,z)
+    }
+    cube[2] = {
+        pos: {
+            x: x + 1,
+            y: y,
+            z: z + 1
+        },
+        val: sampler(x + 1,y,z + 1)
+    }
+    cube[3] = {
+        pos: {
+            x: x,
+            y: y,
+            z: z + 1
+        },
+        val: sampler(x,y,z + 1)
+    }
+    cube[4] = {
+        pos: {
+            x: x,
+            y: y + 1,
+            z: z
+        },
+        val: sampler(x,y + 1, z)
+    }
+    cube[5] = {
+        pos: {
+            x: x + 1,
+            y: y + 1,
+            z: z
+        },
+        val: sampler(x + 1,y + 1,z)
+    }
+    cube[6] = {
+        pos: {
+            x: x + 1,
+            y: y + 1,
+            z: z + 1
+        },
+        val: sampler(x + 1, y + 1, z + 1)
+    }
+    cube[7] = {
+        pos: {
+            x: x,
+            y: y + 1,
+            z: z + 1
+        },
+        val: sampler(x,y + 1, z + 1)
+    }
+
+    return cube;
 }
 
 function getDistance(p1, p2) {
