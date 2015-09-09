@@ -6,13 +6,14 @@ pc.script.create('procedural', function (app) {
 
     ProceduralObject.prototype = {
         initialize: function () {
-            width = height = depth = 16;
+            width = height = depth = 32;
             isolevel = 0.5;
 			dataStep = {
 				x: 1 / width,
 				y: 1 / height,
 				z: 1 / depth
 			};
+			noise.seed(1);
             var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
                     semantic: pc.SEMANTIC_POSITION,
                     components: 3,
@@ -110,6 +111,26 @@ function getSlopeVal(x, y, z) {
 function getFlatVal(x, y, z) {
 	return y / height;
 }
+function getNoiseVal(x, y, z) {
+	var octave1 = noise.simplex3(
+		x / 0.1 + dataStep.x,
+		y / 0.1 + dataStep.y,
+		z / 0.1 + dataStep.z
+	) / 10;
+	var octave2 = noise.simplex3(
+		x / 35 + dataStep.x,
+		y / 35 + dataStep.y,
+		z / 35 + dataStep.z
+	);
+	var octave3 = noise.simplex3(
+		x / 50 + dataStep.x,
+		y / 50 + dataStep.y,
+		z / 50 + dataStep.z
+	);
+
+	//return octave1 + octave2 + octave3;
+	return octave3 + octave2 + octave1;
+}
 function getSphereVal(x, y, z) {
     var maxDistance = width / 2;
     var result, idx, pos;
@@ -131,16 +152,32 @@ function getNormalForVertex(x, y, z, sampler, outObj) {
 	outObj.x = sampler(x + dataStep.x, y, z) - sampler(x - dataStep.x, y , z);
 	outObj.y = sampler(x, y + dataStep.y, z) - sampler(x, y - dataStep.y , z);
 	outObj.z = sampler(x, y, z + dataStep.z) - sampler(x, y , z - dataStep.z);
-
 */
+
 	outObj.x = -(sampler(x + dataStep.x, y, z) - sampler(x - dataStep.x, y , z));
 	outObj.y = -(sampler(x, y + dataStep.y, z) - sampler(x, y - dataStep.y , z));
 	outObj.z = -(sampler(x, y, z + dataStep.z) - sampler(x, y , z - dataStep.z));
+
+}
+
+var zeroVec = {x: 0, y: 0, z: 0};
+
+function normalizeInPlace(vec) {
+	//console.log('--------');
+	//console.log(vec);
+	var length = getDistance(zeroVec, vec);
+	//console.log(length);
+	vec.x = vec.x / length;
+	vec.y = vec.y / length;
+	vec.z = vec.z / length;
+	//console.log(vec);
+	//console.log('--------');
 }
 
 function getVertices() {
 	//var sampler = getFlatVal;
-	var sampler = getSphereVal;
+	var sampler = getNoiseVal;
+	//var sampler = getSphereVal;
 	//var sampler = getSlopeVal;
     var vertices = [];
 	var normal = {
@@ -168,6 +205,8 @@ function getVertices() {
 					vertices.push(zPos);
 
 					getNormalForVertex(xPos, yPos, zPos, sampler, normal);
+
+					normalizeInPlace(normal);
 
 					vertices.push(normal.x);
 					vertices.push(normal.y);
