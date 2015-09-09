@@ -80,7 +80,41 @@ pc.script.create('procedural', function (app) {
     return ProceduralObject;
 });
 
+function getVals(sampler) {
+    var result, idx, pos;
+    var data = [];
+    for(var z = 0; z < depth; z++) {
+        for(var y = 0; y < height; y++) {
+            for(var x = 0; x < width; x++) {
+				result = sampler(x, y, z);
+                idx = getIdx(x, y, z);
+                data[idx] = result; 
+            } 
+        } 
+    } 
+    return data;
+}
 function createSphere() {
+	return getVals(getSphereVal);
+}
+
+function createSlopeTest() {
+	function getSlopeVal(x, y, z) {
+		return y / height + x / width;
+	}
+
+	return getVals(getSlopeVal);
+}
+
+function createFlatTest() {
+	function getFlatVal(x, y, z) {
+		return y / height;
+	}
+
+	return getVals(getFlatVal);
+}
+
+function getSphereVal(x, y, z) {
     var maxDistance = width / 2;
     var result, idx, pos;
     var data = [];
@@ -90,48 +124,10 @@ function createSphere() {
         y: height / 2,
         z: depth / 2
     }
-    //We can reuse the variable since it's not passed outside this function 
     pos = {
-        x: 0, y: 0, z: 0
+        x: x, y: y, z: z
     } 
-    for(var z = 0; z < depth; z++) {
-        for(var y = 0; y < height; y++) {
-            for(var x = 0; x < width; x++) {
-                pos.x = x; pos.y = y; pos.z = z;
-                result = 1 - (getDistance(pos, center) / maxDistance); 
-                idx = getIdx(x, y, z);
-                data[idx] = result; 
-            } 
-        } 
-    } 
-    return data;
-}
-
-function createFlatTest() {
-    var data = [];
-    for(var z = 0; z < depth; z++) {
-        for(var y = 0; y < height; y++) {
-            for(var x = 0; x < width; x++) {
-                idx = getIdx(x, y, z);
-                var val = y / height;
-                data[idx] = val;
-            }
-        }
-    }
-    return data;
-}
-function createTest() {
-    var data = [];
-    for(var z = 0; z < depth; z++) {
-        for(var y = 0; y < height; y++) {
-            for(var x = 0; x < width; x++) {
-                idx = getIdx(x, y, z);
-                var val = y / height + x / width;
-                data[idx] = val;
-            }
-        }
-    }
-    return data;
+	return 1 - (getDistance(pos, center) / maxDistance); 
 }
 
 function getCubeAtPos(x, y, z, vals) {
@@ -206,7 +202,7 @@ function getCubeAtPos(x, y, z, vals) {
 
 function getVertices() {
     //var vals = createFlatTest();
-    //var vals = createtTest();
+    //var vals = createSlopeTest();
     var vals = createSphere();
     var vertices = [];
 
