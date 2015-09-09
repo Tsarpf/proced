@@ -1,4 +1,4 @@
-var width, height, depth, isolevel;
+var width, height, depth, isolevel, dataStep;
 pc.script.create('procedural', function (app) {
     var ProceduralObject = function (entity) {
         this.entity = entity;
@@ -8,8 +8,18 @@ pc.script.create('procedural', function (app) {
         initialize: function () {
             width = height = depth = 16;
             isolevel = 0.5;
+			dataStep = {
+				x: 1 / width,
+				y: 1 / height,
+				z: 1 / depth
+			};
             var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
                     semantic: pc.SEMANTIC_POSITION,
+                    components: 3,
+                    type: pc.ELEMENTTYPE_FLOAT32
+                },
+				{
+                    semantic: pc.SEMANTIC_NORMAL,
                     components: 3,
                     type: pc.ELEMENTTYPE_FLOAT32
                 }
@@ -21,7 +31,7 @@ pc.script.create('procedural', function (app) {
             var vertexBuffer = new pc.VertexBuffer(
                 app.graphicsDevice,
                 vertexFormat,
-                vertexArray.length,
+                vertexArray.length / 2,
                 pc.BUFFER_STATIC
             );
 
@@ -39,13 +49,14 @@ pc.script.create('procedural', function (app) {
             //what's this I don't even?
             mesh.primitive[0].base = 0;
 
-            mesh.primitive[0].count = vertexArray.length / 3;
+            mesh.primitive[0].count = vertexArray.length / 6;
 
             //Probably leaving this undefined would suffice. But since I couldn't find any docs about this right now let's just be safe
             mesh.primitive[0].indexed = false;
 
             var node = new pc.GraphNode();
-            var material = new pc.BasicMaterial();
+            var material = new pc.PhongMaterial();
+            //var material = new pc.BasicMaterial();
             //material.cull = 0;
             //material.vertexColors = true;
             var meshInstance = new pc.MeshInstance(node, mesh, material);
@@ -115,12 +126,30 @@ function getSphereVal(x, y, z) {
 	return 1 - (getDistance(pos, center) / maxDistance); 
 }
 
+function getNormalForVertex(x, y, z, sampler, outObj) {
+/*
+	outObj.x = sampler(x + dataStep.x, y, z) - sampler(x - dataStep.x, y , z);
+	outObj.y = sampler(x, y + dataStep.y, z) - sampler(x, y - dataStep.y , z);
+	outObj.z = sampler(x, y, z + dataStep.z) - sampler(x, y , z - dataStep.z);
+
+*/
+	outObj.x = -(sampler(x + dataStep.x, y, z) - sampler(x - dataStep.x, y , z));
+	outObj.y = -(sampler(x, y + dataStep.y, z) - sampler(x, y - dataStep.y , z));
+	outObj.z = -(sampler(x, y, z + dataStep.z) - sampler(x, y , z - dataStep.z));
+}
+
 function getVertices() {
-	var sampler = getFlatVal;
-	//var sampler = getSphereVal;
+	//var sampler = getFlatVal;
+	var sampler = getSphereVal;
 	//var sampler = getSlopeVal;
     var vertices = [];
+	var normal = {
+		x: 0,
+		y: 0,
+		z: 0
+	};
 
+	var xPos, yPos, zPos;
     //subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
     for(var z = 0; z < depth - 1; z++) {
         for(var y = 0; y < height - 1; y++) {
@@ -129,8 +158,21 @@ function getVertices() {
                 var cubeTris = [];
                 var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
                 var count = 0;
-				for(var i = 0; i < cubeTris.length; i++) {
-					vertices.push(cubeTris[i]);
+				for(var i = 0; i < cubeTris.length; i+=3) {
+					xPos = cubeTris[i];
+					yPos = cubeTris[i+1];
+					zPos = cubeTris[i+2];
+
+					vertices.push(xPos);
+					vertices.push(yPos);
+					vertices.push(zPos);
+
+					getNormalForVertex(xPos, yPos, zPos, sampler, normal);
+
+					vertices.push(normal.x);
+					vertices.push(normal.y);
+					vertices.push(normal.z);
+
 				}
             }
         }

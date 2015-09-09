@@ -380,11 +380,12 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
        vert = vertlist[getTriTableValue(cubeIndex, i)];
        triangles.push(vert.x, vert.y, vert.z);
 
+       vert = vertlist[getTriTableValue(cubeIndex, i + 2)];
+       triangles.push(vert.x, vert.y, vert.z);
+
        vert = vertlist[getTriTableValue(cubeIndex, i + 1)];
        triangles.push(vert.x, vert.y, vert.z);
 
-       vert = vertlist[getTriTableValue(cubeIndex, i + 2)];
-       triangles.push(vert.x, vert.y, vert.z);
 
        ntriang++;
    }
