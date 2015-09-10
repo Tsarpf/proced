@@ -6,7 +6,7 @@ pc.script.create('procedural', function (app) {
 
     ProceduralObject.prototype = {
         initialize: function () {
-            width = height = depth = 32;
+            width = height = depth = 64;
             isolevel = 0.5;
 			dataStep = {
 				x: 1 / width,
@@ -122,14 +122,21 @@ function getNoiseVal(x, y, z) {
 		y / 35 + dataStep.y,
 		z / 35 + dataStep.z
 	);
+	/*
 	var octave3 = noise.simplex3(
 		x / 50 + dataStep.x,
 		y / 50 + dataStep.y,
 		z / 50 + dataStep.z
 	);
+	*/
+	var octave3 = noise.simplex3(
+		x / 25+ dataStep.x,
+		y / 25+ dataStep.y,
+		z / 25+ dataStep.z
+	);
 
 	//return octave1 + octave2 + octave3;
-	return octave3 + octave2 + octave1;
+	return octave3;
 }
 function getSphereVal(x, y, z) {
     var maxDistance = width / 2;
