@@ -9,15 +9,15 @@ pc.script.create('procedural', function (app) {
 
 	ProceduralObject.prototype = {
 		initialize: function () {
-			width = height = depth = 64;
+			width = height = depth = 32;
 			isolevel = 0.5;
 			dataStep = {
 				x: 1 / width,
 				y: 1 / height,
 				z: 1 / depth
 			};
-			//noise.seed(1);
-			noise.seed(Math.random());
+			noise.seed(2);
+			//noise.seed(Math.random());
 			var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
 				semantic: pc.SEMANTIC_POSITION,
 				components: 3,
