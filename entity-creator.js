@@ -16,10 +16,17 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 		addNewEntity: function(position) {
 			var entity = new pc.Entity();	
 			entity.addComponent('script', {
-				scripts: [
-					{ url: 'procedural-component.js' }
-				]
+				scripts: [{
+					url: 'procedural-component.js',
+					attributes: [{
+						name: 'chunkPos',
+						type: 'vector',
+						value: position
+					}],
+					name: 'procComponent'
+				}]
 			});
+			//console.log(entity.script.chunkPosition);
 			entity.setLocalPosition(
 				position[XPOS],
 				position[YPOS],

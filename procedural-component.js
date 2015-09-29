@@ -1,5 +1,6 @@
 //globals for eslint
 /*global noise:false, PROCED:false*/
+//pc.script.attribute('chunkPosition', 'vector');
 
 var width, height, depth, isolevel, dataStep;
 pc.script.create('procedural', function (app) {
@@ -9,6 +10,7 @@ pc.script.create('procedural', function (app) {
 
 	ProceduralObject.prototype = {
 		initialize: function () {
+			console.log(this.chunkPos);
 			width = height = depth = 32;
 			isolevel = 0.5;
 			dataStep = {
