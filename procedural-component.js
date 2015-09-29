@@ -2,7 +2,7 @@
 /*global noise:false, PROCED:false*/
 //pc.script.attribute('chunkPosition', 'vector');
 
-var width, height, depth, isolevel, dataStep, chunkPos;
+var width, height, depth, isolevel, dataStep, chunkPos, scaleFactor;
 pc.script.create('procedural', function (app) {
 	var ProceduralObject = function (entity) {
 		this.entity = entity;
@@ -14,14 +14,13 @@ pc.script.create('procedural', function (app) {
 			height = this.chunkSize.y;
 			depth = this.chunkSize.z;
 			chunkPos = this.chunkPos;
+			scaleFactor = this.scaleFactor;
 			isolevel = 0.5;
 			dataStep = {
 				x: 1 / width,
 				y: 1 / height,
 				z: 1 / depth
 			};
-			noise.seed(2);
-			//noise.seed(Math.random());
 			var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
 				semantic: pc.SEMANTIC_POSITION,
 				components: 3,
@@ -38,11 +37,11 @@ pc.script.create('procedural', function (app) {
 			var vertexArray = getVertices();
 
 			var vertexBuffer = new pc.VertexBuffer(
-					app.graphicsDevice,
-					vertexFormat,
-					vertexArray.length / 2,
-					pc.BUFFER_STATIC
-					);
+				app.graphicsDevice,
+				vertexFormat,
+				vertexArray.length / 2,
+				pc.BUFFER_STATIC
+			);
 
 			var vertices = new Float32Array(vertexBuffer.lock());
 
@@ -115,10 +114,10 @@ function getNoiseVal(x, y, z) {
 			);
 	   */
 	var octave3 = noise.simplex3(
-			x / 25+ dataStep.x,
-			y / 25+ dataStep.y,
-			z / 25+ dataStep.z
-			);
+		x / 10 + dataStep.x,
+		y / 10 + dataStep.y,
+		z / 10 + dataStep.z
+	);
 
 	//return octave1 + octave2 + octave3;
 	return octave3;
@@ -158,21 +157,34 @@ function getVertices() {
 
 	var xPos, yPos, zPos;
 	//subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
+	var getCube = 0,
+		polygonize = 0,
+		addToLists = 0,
+		t0 = 0,
+		t1 = 0;
 	for(var z = 0; z < depth - 1; z++) {
 		for(var y = 0; y < height - 1; y++) {
 			for(var x = 0; x < width - 1; x++) {
+				t0 = performance.now();
 				var cube = getCubeAtPos(x,y,z, sampler);
+				t1 = performance.now();
+				getCube += t1 - t0;
 				var cubeTris = [];
 				//var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
+				t0 = performance.now();
 				PROCED.polygonize(cube, isolevel, cubeTris);
+				t1 = performance.now();
+				polygonize += t1 - t0;
+
+				t0 = performance.now();
 				for(var i = 0; i < cubeTris.length; i+=3) {
 					xPos = cubeTris[i];
 					yPos = cubeTris[i+1];
 					zPos = cubeTris[i+2];
 
-					vertices.push(xPos);
-					vertices.push(yPos);
-					vertices.push(zPos);
+					vertices.push(xPos * scaleFactor);
+					vertices.push(yPos * scaleFactor);
+					vertices.push(zPos * scaleFactor);
 
 					getNormalForVertex(xPos, yPos, zPos, sampler, normal);
 
@@ -181,11 +193,13 @@ function getVertices() {
 					vertices.push(normal.x);
 					vertices.push(normal.y);
 					vertices.push(normal.z);
-
 				}
+				t1 = performance.now();
+				addToLists += t1 - t0;
 			}
 		}
 	}
+	console.log('getting cube: %d, polygonize: %d, addToLists: %d', getCube, polygonize, addToLists);
 	return vertices;
 }
 
@@ -261,10 +275,10 @@ function getCubeAtPos(x, y, z, sampler) {
 
 function getDistance(p1, p2) {
 	return Math.sqrt(
-			Math.pow(p1.x - p2.x, 2) + 
-			Math.pow(p1.y - p2.y, 2) +
-			Math.pow(p1.z - p2.z, 2)
-			);
+		Math.pow(p1.x - p2.x, 2) + 
+		Math.pow(p1.y - p2.y, 2) +
+		Math.pow(p1.z - p2.z, 2)
+	);
 }
 
 /*
