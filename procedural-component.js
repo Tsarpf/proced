@@ -2,7 +2,7 @@
 /*global noise:false, PROCED:false*/
 //pc.script.attribute('chunkPosition', 'vector');
 
-var width, height, depth, isolevel, dataStep;
+var width, height, depth, isolevel, dataStep, chunkPos;
 pc.script.create('procedural', function (app) {
 	var ProceduralObject = function (entity) {
 		this.entity = entity;
@@ -10,8 +10,10 @@ pc.script.create('procedural', function (app) {
 
 	ProceduralObject.prototype = {
 		initialize: function () {
-			console.log(this.chunkPos);
-			width = height = depth = 32;
+			width = this.chunkSize.x;
+			height = this.chunkSize.y;
+			depth = this.chunkSize.z;
+			chunkPos = this.chunkPos;
 			isolevel = 0.5;
 			dataStep = {
 				x: 1 / width,
@@ -91,29 +93,10 @@ pc.script.create('procedural', function (app) {
 	};
 	return ProceduralObject;
 });
-/*
-function createSphere() {
-	return getVals(getSphereVal);
-}
-
-function createSlopeTest() {
-
-	return getVals(getSlopeVal);
-}
-
-function createFlatTest() {
-
-	return getVals(getFlatVal);
-}
-
-function getSlopeVal(x, y, z) {
-	return y / height + x / width;
-}
-function getFlatVal(x, y, z) {
-	return y / height;
-}
-*/
 function getNoiseVal(x, y, z) {
+	x += chunkPos.x;
+	y += chunkPos.y;
+	z += chunkPos.z;
 	/*
 	var octave1 = noise.simplex3(
 			x / 0.1 + dataStep.x,
@@ -140,24 +123,6 @@ function getNoiseVal(x, y, z) {
 	//return octave1 + octave2 + octave3;
 	return octave3;
 }
-/*
-function getSphereVal(x, y, z) {
-	var maxDistance = width / 2;
-	//var result, idx, pos;
-	var pos;
-	//var data = [];
-
-	var center = {
-		x: width / 2,
-		y: height / 2,
-		z: depth / 2
-	};
-	pos = {
-		x: x, y: y, z: z
-	};
-	return 1 - (getDistance(pos, center) / maxDistance); 
-}
-*/
 
 function getNormalForVertex(x, y, z, sampler, outObj) {
 	outObj.x = -(sampler(x + dataStep.x, y, z) - sampler(x - dataStep.x, y , z));
