@@ -10,6 +10,8 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 	CreatorObject.prototype = {
 		initialize: function () {
 			this.addNewEntity([0,0,0]);
+			this.addNewEntity([-32,0,0]);
+			this.addNewEntity([32,0,0]);
 		},
 		addNewEntity: function(position) {
 			var entity = new pc.Entity();	
@@ -27,4 +29,5 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 			app.root.addChild(entity);
 		}
 	};
+	return CreatorObject;
 });
