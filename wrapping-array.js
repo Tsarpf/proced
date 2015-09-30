@@ -14,15 +14,21 @@ PROCED.wrappingArray = function(size) {
 		for(var i = centerIdx; i < size; i++) {
 			zonesX[count] = {
 				max: centerIdx + count,
-				min: centerIdx - count
+				min: centerIdx - count,
+				worldMax: centerIdx + count,
+				worldMin: centerIdx - count
 			};
 			zonesY[count] = {
 				max: centerIdx + count,
-				min: centerIdx - count
+				min: centerIdx - count,
+				worldMax: centerIdx + count,
+				worldMin: centerIdx - count
 			};
 			zonesZ[count] = {
 				max: centerIdx + count,
-				min: centerIdx - count
+				min: centerIdx - count,
+				worldMax: centerIdx + count,
+				worldMin: centerIdx - count
 			};
 			count++;
 		}
@@ -35,6 +41,7 @@ PROCED.wrappingArray = function(size) {
 			return num + 1;	
 		}
 	}
+	/*
 	function getPrevWrap(num) {
 		if(num === 0) {
 			return maxIdx;
@@ -43,6 +50,7 @@ PROCED.wrappingArray = function(size) {
 			return num - 1;	
 		}
 	}
+	*/
 	constructor();
 	var pub = {};
 	pub.setZoneFunction = function(zone, fnForward, fnBackward) {
@@ -51,23 +59,24 @@ PROCED.wrappingArray = function(size) {
 			backward: fnBackward
 		};
 	};
-	pub.moveXPlus = function(worldCoords) {
+	pub.dirXPlus = function() {
 		for(var i = 0; i < zonesX.length; i++) {
 			zonesX[i].max = getNextWrap(zonesX[i].max);
 			zonesX[i].min = getNextWrap(zonesX[i].min);
+			zonesX[i].worldMax++;
+			zonesX[i].worldMin++;
 
 			var x = zonesX[i].max,
 				y, z, wrappedIdx;
 			for(y = zonesY[i].min; y != zonesY[i].max; y = getNextWrap(y)) {
 				for(z = zonesZ[i].min; z != zonesZ[i].max; z = getNextWrap(z)) {
 					wrappedIdx = getIdx(x,y,z);
-					zoneFunctions[i].forward(wrappedIdx, worldCoords);
-					//keep track of world coordinates somewhere else
-					//example zone function:
-					//zoneFnForDrawing(wrappedIdx, worldCoords) {
-					//	array[wrappedIdx] = loadIfNotLoaded(worldCoords);
-					//	array[wrappedIdx].draw()
-					//}
+					zoneFunctions[i].forward(
+					wrappedIdx, {
+						x: zonesX[i].worldMax,
+						y: y,
+						z: z
+					});
 				}
 			}
 
@@ -75,12 +84,15 @@ PROCED.wrappingArray = function(size) {
 			for(y = zonesY[i].min; y != zonesY[i].max; y = getNextWrap(y)) {
 				for(z = zonesZ[i].min; z != zonesZ[i].max; z = getNextWrap(z)) {
 					wrappedIdx = getIdx(x,y,z);
-					zoneFunctions[i].backward(wrappedIdx, worldCoords);
+					zoneFunctions[i].backward(wrappedIdx, {
+						x: zonesX[i].worldMin,
+						y: y,
+						z: z
+					});
 				}
 			}
 
 		}
-
 	};
 
 	pub.size = size;
