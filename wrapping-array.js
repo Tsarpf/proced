@@ -53,70 +53,34 @@ PROCED.wrappingArray = function(size) {
 		};
 	};
 	pub.moveXPlus = function(worldCoords) {
-		//TODO: increment something
-
 		for(var i = 0; i < zonesX.length; i++) {
 			zonesX[i].max = getNextWrap(zonesX[i].max);
 			zonesX[i].min = getNextWrap(zonesX[i].min);
-		}
 
-		var x = zonesX[i].max; 
-		for(var y = zonesY[i].min; y != zonesY[i].max; y = getNextWrap(y)) {
-			for(var z = zonesZ[i].min; z != zonesZ[i].max; z = getNextWrap(z)) {
-				var wrappedIdx = getIdx(x,y,z);
-				zoneFunctions[i].forward(wrappedIdx, worldCoords);
-				//keep track of world coordinates 
-			}
-
-		}
-		//Go through all style thing
-		//Could be used for handling all job queuing before any computation
-		/*
-		for(var x = 0; x < size; x++) {
-			for(var y = 0; y < size; y++) {
-				for(var z = 0; z < size; z++) {
-					var count = 0;
-					while(count < zoneCount) {
-						//Go from smallest zone to biggest
-						//See if inside the zone 
-						
-						//(Note that it's not a trivial min < x < max
-						//check because of the array wrapping!!!)
-
-
-					}
+			var x = zonesX[i].max,
+				y, z, wrappedIdx;
+			for(y = zonesY[i].min; y != zonesY[i].max; y = getNextWrap(y)) {
+				for(z = zonesZ[i].min; z != zonesZ[i].max; z = getNextWrap(z)) {
+					wrappedIdx = getIdx(x,y,z);
+					zoneFunctions[i].forward(wrappedIdx, worldCoords);
+					//keep track of world coordinates somewhere else
+					//example zone function:
+					//zoneFnForDrawing(wrappedIdx, worldCoords) {
+					//	array[wrappedIdx] = loadIfNotLoaded(worldCoords);
+					//	array[wrappedIdx].draw()
+					//}
 				}
 			}
-		}
-		*/
 
-		//go through zones one by one starting from the center
-		/*
-		var zone = 0;
-		while(zone < zoneCount) {
-			for(var x = zonesX[1].min; x != zonesX[1].max; x++) {
-				for(var y = zonesY[1].min; y != zonesY[1].max; y++) {
-					for(var z = zonesZ[1].min; z != zonesY[1].max; z++) {
-								
-					}
+			x = zonesX[i].min;
+			for(y = zonesY[i].min; y != zonesY[i].max; y = getNextWrap(y)) {
+				for(z = zonesZ[i].min; z != zonesZ[i].max; z = getNextWrap(z)) {
+					wrappedIdx = getIdx(x,y,z);
+					zoneFunctions[i].backward(wrappedIdx, worldCoords);
 				}
 			}
-			zone++;
+
 		}
-		*/
-
-		//[ ][x][x][x][ ]
-		//[ ][x][x][x][ ]
-		//[ ][x][x][x][ ]
-		//[ ][ ][ ][ ][ ]
-		//[ ][ ][ ][ ][ ]
-		
-
-		//[ ][ ][x][x][x]
-		//[ ][ ][x][x][x]
-		//[ ][ ][x][x][x]
-		//[ ][ ][ ][ ][ ]
-		//[ ][ ][ ][ ][ ]
 
 	};
 
