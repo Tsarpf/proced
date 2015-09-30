@@ -91,7 +91,6 @@ PROCED.wrappingArray = function(size) {
 					});
 				}
 			}
-
 		}
 	};
 
@@ -100,12 +99,5 @@ PROCED.wrappingArray = function(size) {
 	function getIdx(x, y, z) {
 		return x + size * (y + size * z);
 	}
-
-	//var privateValue = 'ses';
 	return pub;
 };
-
-
-//zone 3 hide but don't destroy
-//zone 2 load
-//zone 1 draw

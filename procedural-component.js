@@ -87,7 +87,8 @@ pc.script.create('procedural', function (app) {
 			this.entity.collision.model = model;
 			app.systems.collision.implementations.mesh.doRecreatePhysicalShape(this.entity.collision);
 		},
-		update: function() {
+		test: function(asdf) {
+			console.log(asdf);
 		}
 	};
 	return ProceduralObject;

@@ -27,17 +27,14 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 	CreatorObject.prototype = {
 		initialize: function () {
 			noise.seed(2);
-			for(var x = 0; x < 5; x++) {
-				for(var y = 0; y < 5; y++) {
-					for(var z = 0; z < 5; z++) {
-
+			for(var x = 0; x < 3; x++) {
+				for(var y = 0; y < 3; y++) {
+					for(var z = 0; z < 3; z++) {
 						this.addNewEntity([
 							x * (chunkSizeX - 1),
 							y * (chunkSizeY - 1),
 							z * (chunkSizeZ - 1)
 						]);
-
-
 					}
 				}
 			}
@@ -70,6 +67,13 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 			);
 
 			app.root.addChild(entity);
+
+			//entity.script.procedural.test('ses');
+			setTimeout(function() {
+				entity.script.procedural.test('ses');
+			}, 1000);
+			//this.entity.script.player.move(-1, 0);
+
 		}
 	};
 	return CreatorObject;
