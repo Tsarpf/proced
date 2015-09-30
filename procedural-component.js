@@ -91,7 +91,9 @@ pc.script.create('procedural', function (app) {
 			model.graph = node;
 			model.meshInstances = [meshInstance];
 
-			this.addComponents(model);
+			if(this.visible) {
+				this.addComponents(model);
+			}
 		}
 	};
 	function getNoiseVal(x, y, z) {

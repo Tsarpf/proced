@@ -1,28 +1,39 @@
-
-var PROCED = PROCED || {};
-PROCED.workQueue = function() {
-	var wrappingArray = PROCED.wrappingArray(5);
+/*global PROCED:false*/
+pc.script.create('workQueue', function () { //context / app can be taken as argument
+	var size = 5;
+	var wrappingArray = PROCED.wrappingArray(size);
 	var array = [];
-	
-	function emptyFn() {
-	}
-	pub.setZoneFunction(0, emptyFn, emptyFn);
+	var WorkQueue = function (entity) {
+		this.entity = entity;
+	};
+	WorkQueue.prototype = {
+		initialize: function() {
+			console.log('ses');
+			for(var x = 1; x < 4; x++) {
+				for(var y = 1; y < 4; y++) {
+					for(var z = 1; z < 4; z++) {
+						array[getIdx(x,y,z)] = this.entity.script.objcreator.addNewEntity([x,y,z], true);
+					}
+				}
+			}
+		}
+	};
 
-	function forward1(wrappedIdx, worldCoords) {
-	}
-	function backward1(wrappedIdx, worldCoords) {
-	}
-	pub.setZoneFunction(1, forward1, backward1);
-
-
-	function forward2(wrappedIdx, worldCoords) {
-	}
-	function backward2(wrappedIdx, worldCoords) {
+	function getIdx(x, y, z) {
+		return x + size * (y + size * z);
 	}
 
-	pub.setZoneFunction(2, forward2, backward2);
+	//Do nothing specific for the tile the player is in
+	function emptyFn() {}
+	wrappingArray.setZoneFunction(0, emptyFn, emptyFn);
 
-	
-	var pub = {};
-	return pub;
-};
+	wrappingArray.setZoneFunction(1, function (wrappedIdx, worldCoords) {
+		array[wrappedIdx] = this.entity.script.objcreator.addNewEntity([worldCoords.x,worldCoords.y,worldCoords.z], true);
+	}, function (wrappedIdx, worldCoords) {
+	});
+
+	wrappingArray.setZoneFunction(2, function (wrappedIdx, worldCoords) {
+	}, function (wrappedIdx, worldCoords) {
+	});
+	return WorkQueue;
+});
