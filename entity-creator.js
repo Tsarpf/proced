@@ -4,12 +4,6 @@ var XPOS = 0,
 	ZPOS = 2;
 
 pc.script.create('objcreator', function (app) { //context / app can be taken as argument
-
-	var scaleFactor = 16;
-	var chunkSizeX = 8,
-		chunkSizeY = 8,
-		chunkSizeZ = 8;
-
 	var CreatorObject = function (entity) {
 		this.entity = entity;
 	};
@@ -18,11 +12,15 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 		initialize: function () {
 			noise.seed(2);
 		},
+		chunkSizeX: 8,
+		chunkSizeY: 8,
+		chunkSizeZ: 8,
+		scaleFactor: 16,
 		addNewEntity: function(position, visible) {
 			position = [
-				position[XPOS] * (chunkSizeX - 1),
-				position[YPOS] * (chunkSizeY - 1),
-				position[ZPOS] * (chunkSizeZ - 1)
+				position[XPOS] * (this.chunkSizeX - 1),
+				position[YPOS] * (this.chunkSizeY - 1),
+				position[ZPOS] * (this.chunkSizeZ - 1)
 			];
 			var entity = new pc.Entity();	
 			entity.addComponent('script', {
@@ -35,11 +33,15 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 					}, {
 						name: 'chunkSize',
 						type: 'vector',
-						value: [chunkSizeX, chunkSizeY, chunkSizeZ]
+						value: [
+							this.chunkSizeX,
+							this.chunkSizeY,
+							this.chunkSizeZ
+						]
 					}, {
 						name: 'scaleFactor',
 						type: 'number',
-						value: scaleFactor
+						value: this.scaleFactor
 					}, {
 						name: 'visible',
 						type: 'boolean',
@@ -49,9 +51,9 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 				}]
 			});
 			entity.setLocalPosition(
-				position[XPOS] * scaleFactor,
-				position[YPOS] * scaleFactor,
-				position[ZPOS] * scaleFactor
+				position[XPOS] * this.scaleFactor,
+				position[YPOS] * this.scaleFactor,
+				position[ZPOS] * this.scaleFactor
 			);
 
 			app.root.addChild(entity);

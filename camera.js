@@ -49,6 +49,10 @@ pc.script.create('first_person_camera', function (app) {
 			if (!pc.Mouse.isPointerLocked()) {
 				app.mouse.enablePointerLock();
 			}
+		},
+
+		setPosition: function(position) {
+			this.entity.setPosition(position[0], position[1], position[2]);
 		}
 	};
 

@@ -1,5 +1,5 @@
 /*global PROCED:false*/
-pc.script.create('workQueue', function () { //context / app can be taken as argument
+pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	var size = 5;
 	var wrappingArray = PROCED.wrappingArray(size);
 	var array = [];
@@ -8,7 +8,6 @@ pc.script.create('workQueue', function () { //context / app can be taken as argu
 	};
 	WorkQueue.prototype = {
 		initialize: function() {
-			console.log('ses');
 			for(var x = 1; x < 4; x++) {
 				for(var y = 1; y < 4; y++) {
 					for(var z = 1; z < 4; z++) {
@@ -16,6 +15,17 @@ pc.script.create('workQueue', function () { //context / app can be taken as argu
 					}
 				}
 			}
+			var camera = app.root.findByName('Camera');
+			var pos = [
+				//20, 20, 20
+				size / 2 * this.entity.script.objcreator.chunkSizeX * this.entity.script.objcreator.scaleFactor,
+				size / 2 * this.entity.script.objcreator.chunkSizeX * this.entity.script.objcreator.scaleFactor,
+				size / 2 * this.entity.script.objcreator.chunkSizeX * this.entity.script.objcreator.scaleFactor
+			];
+			camera.script.first_person_camera.setPosition(pos);
+			//set camera position
+			//when camera position set and confirmed, start infinite loading thing
+
 		}
 	};
 
