@@ -69,9 +69,11 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 			app.root.addChild(entity);
 
 			//entity.script.procedural.test('ses');
+			/*
 			setTimeout(function() {
 				entity.script.procedural.test('ses');
 			}, 1000);
+			*/
 			//this.entity.script.player.move(-1, 0);
 
 		}
