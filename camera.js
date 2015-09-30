@@ -53,6 +53,7 @@ pc.script.create('first_person_camera', function (app) {
 
 		setPosition: function(position) {
 			this.entity.setPosition(position[0], position[1], position[2]);
+			console.log(position);
 		}
 	};
 

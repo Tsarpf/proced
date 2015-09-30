@@ -15,7 +15,7 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 		chunkSizeX: 8,
 		chunkSizeY: 8,
 		chunkSizeZ: 8,
-		scaleFactor: 16,
+		scaleFactor: 4,
 		addNewEntity: function(position, visible) {
 			position = [
 				position[XPOS] * (this.chunkSizeX - 1),
