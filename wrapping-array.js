@@ -4,7 +4,6 @@ PROCED.wrappingArray = function(size) {
 		zonesY = [],
 		zonesZ = [];
 	var centerIdx = ~~(size / 2),
-		zoneCount = centerIdx + 1,
 		maxIdx =  size - 1,
 		zoneFunctions = [];
 	function constructor() {
