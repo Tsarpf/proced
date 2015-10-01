@@ -92,7 +92,7 @@ PROCED.wrappingArray = function(size) {
 			}
 
 			x = zonesX[i].min;
-			xp = minus ? zonesX[i].wolrdMax : zonesX[i].worldMin;
+			xp = minus ? zonesX[i].worldMax : zonesX[i].worldMin;
 			for(y = zonesY[i].min, yWorld = zonesY[i].worldMin; y != zonesY[i].max; y = getNextWrap(y), yWorld++) {
 				for(z = zonesZ[i].min, zWorld = zonesZ[i].worldMin; z != zonesZ[i].max; z = getNextWrap(z), zWorld++) {
 					wrappedIdx = getIdx(x,y,z);
