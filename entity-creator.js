@@ -1,3 +1,4 @@
+pc.script.attribute('proceduralComponent', 'script');
 /*global noise:false*/
 var XPOS = 0,
 	YPOS = 1,
