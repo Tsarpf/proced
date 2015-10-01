@@ -9,6 +9,9 @@ pc.script.create('procedural', function (app) {
 
 	ProceduralObject.prototype = {
 		initialize: function () {
+			if(!this.chunkSize) {
+				return;
+			}
 			width = this.chunkSize.x;
 			height = this.chunkSize.y;
 			depth = this.chunkSize.z;
