@@ -64,11 +64,11 @@ pc.script.create('procedural', function (app) {
 			mesh.primitive[0].indexed = false;
 			return mesh;
 		},
-		addComponents: function(model) {
+		addComponents: function() {
 			app.systems.model.addComponent(this.entity, {
 				type: 'asset'
 			});
-			this.entity.model.model = model;
+			this.entity.model.model = this.model;
 
 			app.systems.rigidbody.addComponent(this.entity, {
 				type: 'static'
@@ -76,8 +76,10 @@ pc.script.create('procedural', function (app) {
 			app.systems.collision.addComponent(this.entity, {
 				type: 'mesh'
 			});
-			this.entity.collision.model = model;
+			/*
+			this.entity.collision.model = this.model;
 			app.systems.collision.implementations.mesh.doRecreatePhysicalShape(this.entity.collision);
+			*/
 		},
 		draw: function() {
 			var mesh = this.getMesh(),
@@ -90,9 +92,10 @@ pc.script.create('procedural', function (app) {
 			var model = new pc.Model();
 			model.graph = node;
 			model.meshInstances = [meshInstance];
+			this.model = model;
 
 			if(this.visible) {
-				this.addComponents(model);
+				this.addComponents();
 			}
 		}
 	};

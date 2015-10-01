@@ -1,12 +1,17 @@
 /*global PROCED:false*/
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
-	var size = 5;
+	var maxFrameComputingTime = 20;
+	var size = 9;
 	var wrappingArray = PROCED.wrappingArray(size);
-	var array = [];
+	var chunkArray = [];
 	var camera;
 	var objCreator;
 	var oldPosX, oldPosY, oldPosZ;
 	var first = true;
+
+	var drawQueue = [];
+	var loadQueue = [];
+	var deleteQueue = [];
 	var WorkQueue = function (entity) {
 		this.entity = entity;
 	};
@@ -16,10 +21,10 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			camera = app.root.findByName('Camera');
 
 			//Initialize world
-			for(var x = 1; x < 4; x++) {
-				for(var y = 1; y < 4; y++) {
-					for(var z = 1; z < 4; z++) {
-						array[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true);
+			for(var x = 0; x < size; x++) {
+				for(var y = 0; y < size; y++) {
+					for(var z = 0; z < size; z++) {
+						chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true);
 					}
 				}
 			}
@@ -33,7 +38,46 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			camera.script.first_person_camera.setPosition(pos);
 			this.initializeZones();
 		},
+		handleDraw: function(obj) {
+			var wrappedIdx = getIdx(obj.arrayCell.x, obj.arrayCell.y, obj.arrayCell.z);
+
+			chunkArray[wrappedIdx] = this.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true);
+		},
+		getAvg: function(list) {
+			var sum = 0;
+			var i;
+			for(i = 0; i < list.length; i++) {
+				sum += list[i];
+			}
+			return sum / i;
+		},
+		/*
+		 * TODO: this.handleLoad and code for checking whether chunk already loaded and we can just enable drawing
+		 */
+		handleQueue: function() {
+			var times = [];
+			var start = performance.now();
+			while(drawQueue.length > 0) {
+				var t0 = performance.now();
+				var obj = drawQueue.shift();
+				this.handleDraw(obj);
+				var t1 = performance.now();
+				times.push(t1-t0);
+				var avg = this.getAvg(times);
+				var end = performance.now();
+				var timeSpent = end - start;
+				//console.log('time spent: %d, avg: %d, max: %d', timeSpent, avg, maxFrameComputingTime);
+				if(timeSpent + avg> maxFrameComputingTime) {
+					return;
+				}
+			}
+			/*
+			while(loadQueue.length > 0){
+			}
+			*/
+		},
 		update: function() {
+			this.handleQueue();
 			var cameraPos = camera.getPosition();
 			var xChunkPos = Math.floor(cameraPos.x / objCreator.chunkSizeX / objCreator.scaleFactor);
 			var yChunkPos = Math.floor(cameraPos.y / objCreator.chunkSizeY / objCreator.scaleFactor);
@@ -43,57 +87,60 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 				oldPosY = yChunkPos;
 				oldPosZ = zChunkPos;
 				first = false;
-				console.log('start %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				return;
 			}
 
 			if(xChunkPos > oldPosX) {
 				oldPosX = xChunkPos;
-				console.log('went +x to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				wrappingArray.dirXPlus();
 			}
 			else if(xChunkPos < oldPosX) {
 				oldPosX = xChunkPos;
-				console.log('dir -x to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				wrappingArray.dirXMinus();
 			}
 
 			if(yChunkPos > oldPosY) {
 				oldPosY = yChunkPos;
-				console.log('went +y to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				wrappingArray.dirYPlus();
 			}
 			else if(yChunkPos < oldPosY) {
 				oldPosY = yChunkPos;
-				console.log('dir -y to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				wrappingArray.dirYMinus();
 			}
 			
 			if(zChunkPos > oldPosZ) {
 				oldPosZ = zChunkPos;
-				console.log('went +z to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				wrappingArray.dirZPlus();
 			}
 			else if(zChunkPos < oldPosZ) {
 				oldPosZ = zChunkPos;
-				console.log('dir -z to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				wrappingArray.dirZMinus();
 			}
 		},
 		initializeZones: function() {
 			function emptyFn() {}
 			wrappingArray.setZoneFunction(0, emptyFn, emptyFn);
-			var that = this;
-			wrappingArray.setZoneFunction(1, function (coordsArray, worldCoords) {
-				console.log(worldCoords);
-				var wrappedIdx = getIdx(coordsArray[0], coordsArray[1], coordsArray[2]);
-				array[wrappedIdx] = that.entity.script.objcreator.addNewEntity([worldCoords.x,worldCoords.y,worldCoords.z], true);
+			wrappingArray.setZoneFunction(1, function () {
 			}, function () {
 			});
-
-			wrappingArray.setZoneFunction(2, function () {
+			wrappingArray.setZoneFunction(2, emptyFn, emptyFn);
+			wrappingArray.setZoneFunction(3, emptyFn, emptyFn);
+			wrappingArray.setZoneFunction(4, function (arrayCell, worldCoords) {
+				drawQueue.push({
+					arrayCell: arrayCell,
+					worldCoords: worldCoords
+				});
 			}, function () {
 			});
+			/*
+			wrappingArray.setZoneFunction(4, function (arrayCell, worldCoords) {
+				loadQueue.push({
+					arrayCell: arrayCell,
+					worldCoords: worldCoords
+				});
+			}, function () {
+			});
+			*/
 		}
 	};
 
