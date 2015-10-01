@@ -82,12 +82,14 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			function emptyFn() {}
 			wrappingArray.setZoneFunction(0, emptyFn, emptyFn);
 			var that = this;
-			wrappingArray.setZoneFunction(1, function () {
+			wrappingArray.setZoneFunction(1, function (coordsArray, worldCoords) {
+				console.log(worldCoords);
+				var wrappedIdx = getIdx(coordsArray[0], coordsArray[1], coordsArray[2]);
+				array[wrappedIdx] = that.entity.script.objcreator.addNewEntity([worldCoords.x,worldCoords.y,worldCoords.z], true);
 			}, function () {
 			});
 
-			wrappingArray.setZoneFunction(2, function (wrappedIdx, worldCoords) {
-				array[wrappedIdx] = that.entity.script.objcreator.addNewEntity([worldCoords.x,worldCoords.y,worldCoords.z], true);
+			wrappingArray.setZoneFunction(2, function () {
 			}, function () {
 			});
 		}

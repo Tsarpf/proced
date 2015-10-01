@@ -1,0 +1,60 @@
+function emptyFunction() {
+}
+var wrappingArray = require('../wrapping-array');
+var assert = require('assert');
+describe('wrapping array basics', function() {
+	it('should not crash', function() {
+		wrappingArray(5);
+	});
+});
+
+describe('zones', function() {
+	it('should call set zone correct number of times', function(done) {
+		var array = wrappingArray(3);
+		array.setZoneFunction(0, emptyFunction, emptyFunction);
+		var count = 0;
+		array.setZoneFunction(1, function() {count++; if(count === 3) done();}, emptyFunction);
+		array.dirXPlus();
+	});
+});
+
+describe('zone function parameters', function() {
+	it('should give correct world coordinates when zigzagging around', function() {
+		var array = wrappingArray(3);
+		array.setZoneFunction(0, emptyFunction, emptyFunction);
+		for(i = 0; i < 3; i++) {
+			array.setZoneFunction(1, function(wrappedIdx, worldPos) {
+				assert.equal(worldPos.z, 3 + i);
+			}, emptyFunction);
+			array.dirZPlus();
+		}
+		for(var i = 0; i < 3; i++) {
+			array.setZoneFunction(1, function(wrappedIdx, worldPos) {
+				assert.equal(worldPos.x, 3 + i);
+			}, emptyFunction);
+			array.dirXPlus();
+
+			array.setZoneFunction(1, function(wrappedIdx, worldPos) {
+				assert.equal(worldPos.y, 3 + i);
+			}, emptyFunction);
+			array.dirYPlus();
+		}
+		for(i = 0; i < 3; i++) {
+			array.setZoneFunction(1, function(wrappedIdx, worldPos) {
+				assert.equal(worldPos.x, 2 - i);
+			}, emptyFunction);
+			array.dirXMinus();
+
+			array.setZoneFunction(1, function(wrappedIdx, worldPos) {
+				assert.equal(worldPos.y, 2 - i);
+			}, emptyFunction);
+			array.dirYMinus();
+		}
+		for(i = 0; i < 3; i++) {
+			array.setZoneFunction(1, function(wrappedIdx, worldPos) {
+				assert.equal(worldPos.z, 2 - i);
+			}, emptyFunction);
+			array.dirZMinus();
+		}
+	});
+});

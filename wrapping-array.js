@@ -77,12 +77,11 @@ PROCED.wrappingArray = function(size) {
 
 			var x = zonesX[i].max,
 				xp = minus ? zonesX[i].worldMin : zonesX[i].worldMax,
-				y, z, wrappedIdx, yWorld, zWorld;
+				y, z, yWorld, zWorld;
 			for(y = zonesY[i].min, yWorld = zonesY[i].worldMin; y != zonesY[i].max; y = getNextWrap(y), yWorld++) {
 				for(z = zonesZ[i].min, zWorld = zonesZ[i].worldMin; z != zonesZ[i].max; z = getNextWrap(z), zWorld++) {
-					wrappedIdx = getIdx(x,y,z);
 					zoneFunctions[i].forward(
-						wrappedIdx, {
+						[x,y,z], {
 							x: xp,
 							y: yWorld,
 							z: zWorld
@@ -95,9 +94,8 @@ PROCED.wrappingArray = function(size) {
 			xp = minus ? zonesX[i].worldMax : zonesX[i].worldMin;
 			for(y = zonesY[i].min, yWorld = zonesY[i].worldMin; y != zonesY[i].max; y = getNextWrap(y), yWorld++) {
 				for(z = zonesZ[i].min, zWorld = zonesZ[i].worldMin; z != zonesZ[i].max; z = getNextWrap(z), zWorld++) {
-					wrappedIdx = getIdx(x,y,z);
 					zoneFunctions[i].backward(
-						wrappedIdx, {
+						[x,y,z], {
 							x: xp,
 							y: yWorld,
 							z: zWorld
@@ -127,12 +125,11 @@ PROCED.wrappingArray = function(size) {
 
 			var y = zonesY[i].max,
 				yp = minus ? zonesY[i].worldMin : zonesY[i].worldMax,
-				x, z, wrappedIdx, xWorld, zWorld;
+				x, z, xWorld, zWorld;
 			for(x = zonesX[i].min, xWorld = zonesX[i].worldMin; x != zonesX[i].max; x = getNextWrap(x), xWorld++) {
 				for(z = zonesZ[i].min, zWorld = zonesZ[i].worldMin; z != zonesZ[i].max; z = getNextWrap(z), zWorld++) {
-					wrappedIdx = getIdx(x,y,z);
 					zoneFunctions[i].forward(
-						wrappedIdx, {
+						[x,y,z], {
 							x: xWorld,
 							y: yp, 
 							z: zWorld
@@ -145,9 +142,8 @@ PROCED.wrappingArray = function(size) {
 			yp = minus ? zonesY[i].worldMax : zonesY[i].worldMin;
 			for(x = zonesX[i].min, xWorld = zonesX[i].worldMin; x != zonesX[i].max; x = getNextWrap(x), xWorld++) {
 				for(z = zonesZ[i].min, zWorld = zonesZ[i].worldMin; z != zonesZ[i].max; z = getNextWrap(z), zWorld++) {
-					wrappedIdx = getIdx(x,y,z);
 					zoneFunctions[i].backward(
-						wrappedIdx, {
+						[x,y,z], {
 							x: xWorld,
 							y: yp,
 							z: zWorld
@@ -177,12 +173,11 @@ PROCED.wrappingArray = function(size) {
 
 			var z = zonesZ[i].max,
 				zp = minus ? zonesZ[i].worldMin : zonesZ[i].worldMax,
-				x, y, wrappedIdx, xWorld, yWorld;
+				x, y, xWorld, yWorld;
 			for(x = zonesX[i].min, xWorld = zonesX[i].worldMin; x != zonesX[i].max; x = getNextWrap(x), xWorld++) {
 				for(y = zonesY[i].min, yWorld = zonesY[i].worldMin; y != zonesY[i].max; y = getNextWrap(y), yWorld++) {
-					wrappedIdx = getIdx(x,y,z);
 					zoneFunctions[i].forward(
-						wrappedIdx, {
+						[x,y,z], {
 							x: xWorld,
 							y: yWorld,
 							z: zp
@@ -195,9 +190,8 @@ PROCED.wrappingArray = function(size) {
 			zp = minus ? zonesZ[i].worldMax : zonesZ[i].worldMin;
 			for(x = zonesX[i].min, xWorld = zonesX[i].worldMin; x != zonesX[i].max; x = getNextWrap(x), xWorld++) {
 				for(y = zonesY[i].min, yWorld = zonesY[i].worldMin; y != zonesY[i].max; y = getNextWrap(y), yWorld++) {
-					wrappedIdx = getIdx(x,y,z);
 					zoneFunctions[i].backward(
-						wrappedIdx, {
+						[x,y,z], {
 							x: xWorld,
 							y: yWorld,
 							z: zp
@@ -207,11 +201,11 @@ PROCED.wrappingArray = function(size) {
 			}
 		}
 	};
-
 	pub.size = size;
-
-	function getIdx(x, y, z) {
-		return x + size * (y + size * z);
-	}
 	return pub;
 };
+
+if(typeof module !== 'undefined') {
+	/*eslint-env node, mocha */
+	module.exports = PROCED.wrappingArray;
+}
