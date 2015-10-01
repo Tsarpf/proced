@@ -18,7 +18,10 @@
         "semi": [
             2,
             "always"
-        ]
+        ],
+		"no-inner-declarations": [
+			0
+		]
     },
     "env": {
         "browser": true

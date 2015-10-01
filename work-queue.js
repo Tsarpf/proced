@@ -5,7 +5,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 	var array = [];
 	var camera;
 	var objCreator;
-	var oldPosX;
+	var oldPosX, oldPosY, oldPosZ;
 	var first = true;
 	var WorkQueue = function (entity) {
 		this.entity = entity;
@@ -35,17 +35,47 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 		},
 		update: function() {
 			var cameraPos = camera.getPosition();
-			var xChunkPos = ~~(cameraPos.x / objCreator.chunkSizeX / objCreator.scaleFactor);
+			var xChunkPos = Math.floor(cameraPos.x / objCreator.chunkSizeX / objCreator.scaleFactor);
+			var yChunkPos = Math.floor(cameraPos.y / objCreator.chunkSizeY / objCreator.scaleFactor);
+			var zChunkPos = Math.floor(cameraPos.z / objCreator.chunkSizeZ / objCreator.scaleFactor);
 			if(first) {
 				oldPosX = xChunkPos;
+				oldPosY = yChunkPos;
+				oldPosZ = zChunkPos;
 				first = false;
+				console.log('start %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				return;
 			}
 
 			if(xChunkPos > oldPosX) {
 				oldPosX = xChunkPos;
-				console.log('went +x');
+				console.log('went +x to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
 				wrappingArray.dirXPlus();
+			}
+			else if(xChunkPos < oldPosX) {
+				oldPosX = xChunkPos;
+				console.log('dir -x to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
+				wrappingArray.dirXMinus();
+			}
+			if(yChunkPos > oldPosY) {
+				oldPosY = yChunkPos;
+				console.log('went +y to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
+				wrappingArray.dirYPlus();
+			}
+			else if(yChunkPos < oldPosY) {
+				oldPosY = yChunkPos;
+				console.log('dir -y to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
+				wrappingArray.dirYMinus();
+			}
+			if(zChunkPos > oldPosZ) {
+				oldPosZ = zChunkPos;
+				console.log('went +z to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
+				wrappingArray.dirZPlus();
+			}
+			else if(zChunkPos < oldPosZ) {
+				oldPosZ = zChunkPos;
+				console.log('dir -z to %d %d %d', xChunkPos, yChunkPos, zChunkPos);
+				wrappingArray.dirZMinus();
 			}
 		},
 		initializeZones: function() {
