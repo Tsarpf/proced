@@ -16,9 +16,9 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			camera = app.root.findByName('Camera');
 
 			//Initialize world
-			for(var x = 1; x < 4; x++) {
-				for(var y = 1; y < 4; y++) {
-					for(var z = 1; z < 4; z++) {
+			for(var x = 0; x < 5; x++) {
+				for(var y = 0; y < 5; y++) {
+					for(var z = 0; z < 5; z++) {
 						array[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true);
 					}
 				}
@@ -82,12 +82,12 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			function emptyFn() {}
 			wrappingArray.setZoneFunction(0, emptyFn, emptyFn);
 			var that = this;
-			wrappingArray.setZoneFunction(1, function (wrappedIdx, worldCoords) {
-				array[wrappedIdx] = that.entity.script.objcreator.addNewEntity([worldCoords.x,worldCoords.y,worldCoords.z], true);
+			wrappingArray.setZoneFunction(1, function () {
 			}, function () {
 			});
 
-			wrappingArray.setZoneFunction(2, function () {
+			wrappingArray.setZoneFunction(2, function (wrappedIdx, worldCoords) {
+				array[wrappedIdx] = that.entity.script.objcreator.addNewEntity([worldCoords.x,worldCoords.y,worldCoords.z], true);
 			}, function () {
 			});
 		}
