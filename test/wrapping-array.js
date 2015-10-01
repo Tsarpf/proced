@@ -13,7 +13,12 @@ describe('zones', function() {
 		var array = wrappingArray(3);
 		array.setZoneFunction(0, emptyFunction, emptyFunction);
 		var count = 0;
-		array.setZoneFunction(1, function() {count++; if(count === 3) done();}, emptyFunction);
+		array.setZoneFunction(1, function() {
+			count++;
+			if(count === 9) {
+				done();
+			}
+		}, emptyFunction);
 		array.dirXPlus();
 	});
 });
@@ -102,4 +107,3 @@ describe('zone function parameters', function() {
 		}
 	});
 });
-
