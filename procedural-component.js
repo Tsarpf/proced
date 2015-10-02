@@ -167,26 +167,28 @@ pc.script.create('procedural', function (app) {
 
 		var xPos, yPos, zPos;
 		//subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
+		/*
 		var getCube = 0,
 			polygonize = 0,
 			addToLists = 0,
 			t0 = 0,
 			t1 = 0;
+			*/
 		for(var z = 0; z < depth - 1; z++) {
 			for(var y = 0; y < height - 1; y++) {
 				for(var x = 0; x < width - 1; x++) {
-					t0 = performance.now();
+					//t0 = performance.now();
 					var cube = getCubeAtPos(x,y,z, sampler);
-					t1 = performance.now();
-					getCube += t1 - t0;
+					//t1 = performance.now();
+					//getCube += t1 - t0;
 					var cubeTris = [];
 					//var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
-					t0 = performance.now();
+					//t0 = performance.now();
 					PROCED.polygonize(cube, isolevel, cubeTris);
-					t1 = performance.now();
-					polygonize += t1 - t0;
+					//t1 = performance.now();
+					//polygonize += t1 - t0;
 
-					t0 = performance.now();
+					//t0 = performance.now();
 					for(var i = 0; i < cubeTris.length; i+=3) {
 						xPos = cubeTris[i];
 						yPos = cubeTris[i+1];
@@ -204,8 +206,8 @@ pc.script.create('procedural', function (app) {
 						vertices.push(normal.y);
 						vertices.push(normal.z);
 					}
-					t1 = performance.now();
-					addToLists += t1 - t0;
+					//t1 = performance.now();
+					//addToLists += t1 - t0;
 				}
 			}
 		}

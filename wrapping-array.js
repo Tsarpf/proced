@@ -82,6 +82,10 @@ PROCED.wrappingArray = function(size) {
 				zonesX[i].worldMin++;
 			}
 
+			if(typeof zoneFunctions[i] === 'undefined') {
+				continue;
+			}
+
 			var x = zonesX[i].max,
 				xp = minus ? zonesX[i].worldMin : zonesX[i].worldMax,
 				y, z, yWorld, zWorld,
@@ -135,6 +139,10 @@ PROCED.wrappingArray = function(size) {
 				zonesY[i].worldMin++;
 			}
 
+			if(typeof zoneFunctions[i] === 'undefined') {
+				continue;
+			}
+
 			var y = zonesY[i].max,
 				yp = minus ? zonesY[i].worldMin : zonesY[i].worldMax,
 				x, z, xWorld, zWorld,
@@ -186,6 +194,10 @@ PROCED.wrappingArray = function(size) {
 				zonesZ[i].min = getNextWrap(zonesZ[i].min);
 				zonesZ[i].worldMax++;
 				zonesZ[i].worldMin++;
+			}
+
+			if(typeof zoneFunctions[i] === 'undefined') {
+				continue;
 			}
 
 			var z = zonesZ[i].max,
