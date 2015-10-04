@@ -44,8 +44,9 @@ pc.script.create('procedural', function (app) {
 			var vertexBuffer = new pc.VertexBuffer(
 				app.graphicsDevice,
 				vertexFormat,
-				//vertexArray.length / 2, //wat why was this like dat?
-				buffers.vertexList.length / 6,
+				//buffers.vertexList.length / 2, //wat why was this like dat?
+				buffers.vertexList.length / 3,
+				//buffers.vertexList.length / 6,
 				pc.BUFFER_STATIC
 			);
 			var indexBuffer = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, buffers.indexList.length);
@@ -203,7 +204,7 @@ pc.script.create('procedural', function (app) {
 
 						var normal = new pc.Vec3().cross(v1, v2);
 						normal.normalize();
-						var area = v1.length * v2.length / 2;
+						var area = v1.length() * v2.length() / 2;
 
 						var triangle = {
 							fst: [cubeTris[0], cubeTris[1], cubeTris[2]],
@@ -220,19 +221,20 @@ pc.script.create('procedural', function (app) {
 						
 						//Add triangle normals for each vertex here
 						//so they can be used in the next pass when generating the actual vertex and index buffers
-						debugger;
-						var idx = getIdx(vert[0], vert[1], vert[2]);
-						if(!vertexLookup[idx]) {
-							vertexLookup[idx] = [{
-								normal: normal,
-								area: area
-							}];
-						}
-						else {
-							vertexLookup[idx].push({
-								normal: normal,
-								area: area
-							});
+						for(var j = i; j < i + 9; j+=3) {
+							var idx = getIdx(cubeTris[j], cubeTris[j+1], cubeTris[j+2]);
+							if(!vertexLookup[idx]) {
+								vertexLookup[idx] = [{
+									normal: normal,
+									area: area
+								}];
+							}
+							else {
+								vertexLookup[idx].push({
+									normal: normal,
+									area: area
+								});
+							}
 						}
 					}
 				}
@@ -281,8 +283,10 @@ pc.script.create('procedural', function (app) {
 		sumVec *= sumVec * 1 / trianglesData.length;
 		return sumVec;
 	}
+	var decimalCount = 5;
 	function getIdx(x, y, z) {
-		return x + width * (y + height * z);
+		return '' + x.toFixed(decimalCount) + y.toFixed(decimalCount) + z.toFixed(decimalCount);
+		//return x + width * (y + height * z);
 	}
 
 	function getCubeAtPos(x, y, z, sampler) {
