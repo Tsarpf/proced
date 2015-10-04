@@ -30,12 +30,12 @@ pc.script.create('procedural', function (app) {
 				semantic: pc.SEMANTIC_POSITION,
 				components: 3,
 				type: pc.ELEMENTTYPE_FLOAT32
-			},
+			}/*,
 			{
 				semantic: pc.SEMANTIC_NORMAL,
 				components: 3,
 				type: pc.ELEMENTTYPE_FLOAT32
-			}
+			}*/
 			]);
 
 			//Marching etc done at this point
@@ -44,15 +44,9 @@ pc.script.create('procedural', function (app) {
 			var vertexBuffer = new pc.VertexBuffer(
 				app.graphicsDevice,
 				vertexFormat,
-				//buffers.vertexList.length / 2, //wat why was this like dat?
 				buffers.vertexList.length / 3,
-				//buffers.vertexList.length / 6,
 				pc.BUFFER_STATIC
 			);
-			var indexBuffer = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, buffers.indexList.length);
-			var indices = new Uint16Array(indexBuffer.lock());
-			indices.set(buffers.indexList);
-			indexBuffer.unlock();
 
 			var vertices = new Float32Array(vertexBuffer.lock());
 
@@ -62,16 +56,38 @@ pc.script.create('procedural', function (app) {
 
 			var mesh = new pc.Mesh();
 			mesh.vertexBuffer = vertexBuffer;
-			mesh.indexBuffer[0] = indexBuffer;
+			mesh.indexBuffer[0] = this.getIndexBuffer(buffers);
 			mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
 
 			//what's this I don't even?
 			mesh.primitive[0].base = 0;
 
-			mesh.primitive[0].count = buffers.indexList.length / 6;
+			mesh.primitive[0].count = buffers.indexList.length;
 
 			mesh.primitive[0].indexed = true;
 			return mesh;
+		},
+		getIndexBuffer: function(buffers) {
+			var indexBuffer = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT32, buffers.indexList.length);
+			var indices = new Uint32Array(indexBuffer.lock());
+			indices.set(buffers.indexList);
+			indexBuffer.unlock();
+			return indexBuffer;
+/*
+        // var indexBuffer = new pc.gfx.IndexBuffer(context.graphicsDevice, pc.gfx.INDEXFORMAT_UINT16, numIndices, pc.gfx.BUFFER_STATIC);
+        var indexBuffer = new pc.gfx.IndexBuffer(context.graphicsDevice, pc.gfx.INDEXFORMAT_UINT16, numIndices);
+        var indices = new Uint8Array(indexBuffer.lock());
+
+        var indexArray = [];
+        // Should be like this order: http://dan.lecocq.us/wordpress/2009/12/25/triangle-strip-for-grids-a-construction/
+        for(x=0;x<dimminus1;x++) {
+            for(y=0;y<dimminus1;y++) {
+                indexArray.push(x*dimension+y,(x+1)*dimension+y, x*dimension+y+1,(x+1)*dimension+y, x*dimension+y+1, (x+1)*dimension+y+1);
+            }
+        }
+        indices.set(indexArray);
+        indexBuffer.unlock();
+*/
 		},
 		addComponents: function() {
 			app.systems.model.addComponent(this.entity, {
@@ -93,8 +109,8 @@ pc.script.create('procedural', function (app) {
 		draw: function() {
 			var mesh = this.getMesh(),
 				node = new pc.GraphNode(),
-				material = new pc.PhongMaterial();
-			//var material = new pc.BasicMaterial();
+				material = new pc.BasicMaterial();
+				//material = new pc.PhongMaterial();
 			//material.cull = 0;
 			//material.vertexColors = true;
 			var meshInstance = new pc.MeshInstance(node, mesh, material);
@@ -108,6 +124,12 @@ pc.script.create('procedural', function (app) {
 			}
 		}
 	};
+	function getSlopeVal(x, y, z) {
+			return y / height + x / width;
+	}
+	function getFlatVal(x, y, z) {
+			return y / height;
+	}
 	function getNoiseVal(x, y, z) {
 		x += chunkPos.x;
 		y += chunkPos.y;
@@ -139,55 +161,16 @@ pc.script.create('procedural', function (app) {
 		return octave3;
 	}
 
-	/*
-	function getNormalForVertex(x, y, z, sampler, outObj) {
-		outObj.x = -(sampler(x + dataStep.x, y, z) - sampler(x - dataStep.x, y , z));
-		outObj.y = -(sampler(x, y + dataStep.y, z) - sampler(x, y - dataStep.y , z));
-		outObj.z = -(sampler(x, y, z + dataStep.z) - sampler(x, y , z - dataStep.z));
-	}
-	function normalizeInPlace(vec) {
-		//console.log('--------');
-		//console.log(vec);
-		var length = getDistance(zeroVec, vec);
-		//console.log(length);
-		vec.x = vec.x / length;
-		vec.y = vec.y / length;
-		vec.z = vec.z / length;
-		//console.log(vec);
-		//console.log('--------');
-	}
-	*/
-
-	//var zeroVec = {x: 0, y: 0, z: 0};
-
-
 	function getBuffers() {
-		//var sampler = getFlatVal;
-		var sampler = getNoiseVal;
-		//var sampler = getSphereVal;
-		//var sampler = getSlopeVal;
-
-		//var xPos, yPos, zPos;
-		//subtract 1 from each end since the last one doesn't need its own cube yaknaw :S
-		/*
-		var getCube = 0,
-			polygonize = 0,
-			addToLists = 0,
-			t0 = 0,
-			t1 = 0;
-			*/
+		//var sampler = getNoiseVal;
+		var sampler = getSlopeVal;
 		var triangles = [];
 		var vertexLookup = [];
 		for(var z = 0; z < depth - 1; z++) {
 			for(var y = 0; y < height - 1; y++) {
 				for(var x = 0; x < width - 1; x++) {
-					//t0 = performance.now();
 					var cube = getCubeAtPos(x,y,z, sampler);
-					//t1 = performance.now();
-					//getCube += t1 - t0;
 					var cubeTris = [];
-					//var ntriangles = PROCED.polygonize(cube, isolevel, cubeTris);
-					//t0 = performance.now();
 					PROCED.polygonize(cube, isolevel, cubeTris);
 
 					for(var i = 0; i < cubeTris.length; i+=9) {
@@ -207,17 +190,15 @@ pc.script.create('procedural', function (app) {
 						var area = v1.length() * v2.length() / 2;
 
 						var triangle = {
-							fst: [cubeTris[0], cubeTris[1], cubeTris[2]],
-							snd: [cubeTris[3], cubeTris[4], cubeTris[5]],
-							trd: [cubeTris[6], cubeTris[7], cubeTris[8]]
+							fst: [cubeTris[i + 1], cubeTris[i + 0], cubeTris[i + 2]],
+							snd: [cubeTris[i + 4], cubeTris[i + 3], cubeTris[i + 5]],
+							trd: [cubeTris[i + 7], cubeTris[i + 6], cubeTris[i + 8]]
 							/*
 							normal: normal,
 							area: area
 							*/
 						};
 						triangles.push(triangle);
-
-
 						
 						//Add triangle normals for each vertex here
 						//so they can be used in the next pass when generating the actual vertex and index buffers
@@ -252,41 +233,46 @@ pc.script.create('procedural', function (app) {
 				normal = getAverageNormal(vertexLookup[idx]);
 				if(!vertexIndexLookup[idx]) {
 					vertexList.push(vert[0] * scaleFactor, vert[1] * scaleFactor, vert[2] * scaleFactor);
-					vertexList.push(normal.x, normal.y, normal.z);
+					//vertexList.push(normal.x, normal.y, normal.z);
 					var len = vertexList.length;
 					vertexIndexLookup[idx] = {
-						vertexIndices: [len - 6, len - 5, len - 4],
+						vertexIndices: [len - 3, len - 2, len - 1],
+						//vertexIndices: [len - 6, len - 5, len - 4],
 						normalIndices: [len - 3, len - 2, len - 1]
 					};
 				}
 				var idxObj = vertexIndexLookup[idx];
-				indexList.push(
-					idxObj.vertexIndices[0],
-					idxObj.vertexIndices[1],
-					idxObj.vertexIndices[2],
-					idxObj.normalIndices[0],
-					idxObj.normalIndices[1],
-					idxObj.normalIndices[2]
-				);
+				indexList.push(idxObj.vertexIndices[0] / 3);
 			}
 		}
 
-		//console.log('getting cube: %d, polygonize: %d, addToLists: %d', getCube, polygonize, addToLists);
+		
+		/*
+		return {vertexList: [
+			1, 2, 0, //0-2
+			1, 2, 1, //3-5
+			0, 2, 0, //6-8
+			0, 2, 1 //9 - 11
+		], indexList: [
+			0, 1, 2, //first triangle
+			1, 3, 2
+		]};
+		*/
 		return {vertexList: vertexList, indexList: indexList};
 	}
 
 	function getAverageNormal(trianglesData) {
-		var sumVec = pc.Vec3(0,0,0);
+		var sumVec = new pc.Vec3(0,0,0);
 		for(var i = 0; i < trianglesData.length; i++) {
-			sumVec += trianglesData.normal * trianglesData.area;
+			sumVec.add(trianglesData[i].normal.scale(trianglesData[i].area));
 		}
-		sumVec *= sumVec * 1 / trianglesData.length;
+		sumVec.scale(1 / trianglesData.length);
+		sumVec.normalize();
 		return sumVec;
 	}
 	var decimalCount = 5;
 	function getIdx(x, y, z) {
-		return '' + x.toFixed(decimalCount) + y.toFixed(decimalCount) + z.toFixed(decimalCount);
-		//return x + width * (y + height * z);
+		return '' + x.toFixed(decimalCount) + ' ' + y.toFixed(decimalCount) + ' ' + z.toFixed(decimalCount);
 	}
 
 	function getCubeAtPos(x, y, z, sampler) {
@@ -359,52 +345,5 @@ pc.script.create('procedural', function (app) {
 		return cube;
 	}
 
-	/*
-	function getDistance(p1, p2) {
-		return Math.sqrt(
-			Math.pow(p1.x - p2.x, 2) + 
-			Math.pow(p1.y - p2.y, 2) +
-			Math.pow(p1.z - p2.z, 2)
-		);
-	}
-	*/
 	return ProceduralObject;
 });
-
-/*
-   function debugPrint(array) {
-   var pos = [];
-   for(var i = 0; i < array.length; i++) {
-   pos.push(array[i]);
-   if(pos.length === 3) {
-   console.log(pos);
-   pos = [];
-   }
-
-   }
-   }
-   */
-
-	/*
-            var numIndices = (resolution - 1) * (resolution - 1) * 6;
-            var indexBuffer = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, numIndices);
-            var indices = new Uint16Array(indexBuffer.lock());
-    
-            var indexArray = [];
-            for (x = 0; x < resolution - 1; x++) {
-                for (y = 0; y < resolution - 1; y++) {
-                    indexArray.push(x * resolution + y + 1, 
-                                    (x + 1) * resolution + y,
-                                    x * resolution + y,
-                                    (x + 1) * resolution + y,
-                                    x * resolution + y + 1,
-                                    (x + 1) * resolution + y + 1);
-                }
-            }
-            indices.set(indexArray);
-            indexBuffer.unlock();
-
-            var mesh = new pc.Mesh();
-            mesh.vertexBuffer = vertexBuffer;
-            mesh.indexBuffer[0] = indexBuffer;
-	 */
