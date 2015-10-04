@@ -30,12 +30,12 @@ pc.script.create('procedural', function (app) {
 				semantic: pc.SEMANTIC_POSITION,
 				components: 3,
 				type: pc.ELEMENTTYPE_FLOAT32
-			}/*,
+			},
 			{
 				semantic: pc.SEMANTIC_NORMAL,
 				components: 3,
 				type: pc.ELEMENTTYPE_FLOAT32
-			}*/
+			}
 			]);
 
 			//Marching etc done at this point
@@ -109,8 +109,8 @@ pc.script.create('procedural', function (app) {
 		draw: function() {
 			var mesh = this.getMesh(),
 				node = new pc.GraphNode(),
-				material = new pc.BasicMaterial();
-				//material = new pc.PhongMaterial();
+				//material = new pc.BasicMaterial();
+				material = new pc.PhongMaterial();
 			//material.cull = 0;
 			//material.vertexColors = true;
 			var meshInstance = new pc.MeshInstance(node, mesh, material);
@@ -162,8 +162,9 @@ pc.script.create('procedural', function (app) {
 	}
 
 	function getBuffers() {
-		//var sampler = getNoiseVal;
-		var sampler = getSlopeVal;
+		var sampler = getNoiseVal;
+		//var sampler = getSlopeVal;
+		//var sampler = getFlatVal;
 		var triangles = [];
 		var vertexLookup = [];
 		for(var z = 0; z < depth - 1; z++) {
@@ -185,14 +186,15 @@ pc.script.create('procedural', function (app) {
 							cubeTris[i + 8] - cubeTris[i + 2]
 						);
 
+						//debugger;
 						var normal = new pc.Vec3().cross(v1, v2);
 						normal.normalize();
 						var area = v1.length() * v2.length() / 2;
 
 						var triangle = {
-							fst: [cubeTris[i + 1], cubeTris[i + 0], cubeTris[i + 2]],
-							snd: [cubeTris[i + 4], cubeTris[i + 3], cubeTris[i + 5]],
-							trd: [cubeTris[i + 7], cubeTris[i + 6], cubeTris[i + 8]]
+							fst: [cubeTris[i + 0], cubeTris[i + 1], cubeTris[i + 2]],
+							snd: [cubeTris[i + 3], cubeTris[i + 4], cubeTris[i + 5]],
+							trd: [cubeTris[i + 6], cubeTris[i + 7], cubeTris[i + 8]]
 							/*
 							normal: normal,
 							area: area
@@ -203,7 +205,7 @@ pc.script.create('procedural', function (app) {
 						//Add triangle normals for each vertex here
 						//so they can be used in the next pass when generating the actual vertex and index buffers
 						for(var j = i; j < i + 9; j+=3) {
-							var idx = getIdx(cubeTris[j], cubeTris[j+1], cubeTris[j+2]);
+							var idx = getIdx(cubeTris[j], cubeTris[j + 1], cubeTris[j+2]);
 							if(!vertexLookup[idx]) {
 								vertexLookup[idx] = [{
 									normal: normal,
@@ -230,10 +232,12 @@ pc.script.create('procedural', function (app) {
 				var vert = triangles[i][vertKey];
 				idx = getIdx(vert[0], vert[1], vert[2]);
 				//var normal = vertexLookup[idx] //calc normal here
+				//debugger;
 				normal = getAverageNormal(vertexLookup[idx]);
+				normal.scale(-1);
 				if(!vertexIndexLookup[idx]) {
 					vertexList.push(vert[0] * scaleFactor, vert[1] * scaleFactor, vert[2] * scaleFactor);
-					//vertexList.push(normal.x, normal.y, normal.z);
+					vertexList.push(normal.x, normal.y, normal.z);
 					var len = vertexList.length;
 					vertexIndexLookup[idx] = {
 						vertexIndices: [len - 3, len - 2, len - 1],
@@ -242,7 +246,7 @@ pc.script.create('procedural', function (app) {
 					};
 				}
 				var idxObj = vertexIndexLookup[idx];
-				indexList.push(idxObj.vertexIndices[0] / 3);
+				indexList.push(idxObj.vertexIndices[0] / 6);
 			}
 		}
 

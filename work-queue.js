@@ -3,7 +3,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 	//var maxFrameComputingTime = 10;
 	//var size = 11;
 	//var size = 7;
-	var size = 3;
+	var size = 7;
 	var wrappingArray = PROCED.wrappingArray(size);
 	var chunkArray = [];
 	var camera;
@@ -26,7 +26,6 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 
 			var t0 = performance.now();
 			//Initialize world
-			/*
 			for(var x = 1; x < size - 1; x++) {
 				for(var y = 1; y < size - 1; y++) {
 					for(var z = 1; z < size - 1; z++) {
@@ -34,8 +33,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 					}
 				}
 			}
-			*/
-			objCreator.addNewEntity([0,0,0], true);
+			//objCreator.addNewEntity([0,0,0], true);
 			var t1 = performance.now();
 			console.log('time spent initializing: %d', t1 - t0);
 
@@ -45,7 +43,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 				size / 2 * objCreator.chunkSizeY * objCreator.scaleFactor,
 				size / 2 * objCreator.chunkSizeZ * objCreator.scaleFactor
 			];
-			//camera.script.first_person_camera.setPosition(pos);
+			camera.script.first_person_camera.setPosition(pos);
 			this.initializeZones();
 		},
 		handleDraw: function() {
