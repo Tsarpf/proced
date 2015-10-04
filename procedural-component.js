@@ -234,7 +234,7 @@ pc.script.create('procedural', function (app) {
 				//var normal = vertexLookup[idx] //calc normal here
 				//debugger;
 				normal = getAverageNormal(vertexLookup[idx]);
-				normal.scale(-1);
+				//normal.scale(-1);
 				if(!vertexIndexLookup[idx]) {
 					vertexList.push(vert[0] * scaleFactor, vert[1] * scaleFactor, vert[2] * scaleFactor);
 					vertexList.push(normal.x, normal.y, normal.z);
