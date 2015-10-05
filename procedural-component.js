@@ -25,6 +25,7 @@ pc.script.create('procedural', function (app) {
 			};
 			this.draw();
 		},
+		state: 'loading',
 		getMesh: function() {
 			var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [{
 				semantic: pc.SEMANTIC_POSITION,
@@ -90,6 +91,7 @@ pc.script.create('procedural', function (app) {
 */
 		},
 		addComponents: function() {
+			this.state = 'drawing';
 			app.systems.model.addComponent(this.entity, {
 				type: 'asset'
 			});
@@ -105,6 +107,7 @@ pc.script.create('procedural', function (app) {
 			this.entity.collision.model = this.model;
 			app.systems.collision.implementations.mesh.doRecreatePhysicalShape(this.entity.collision);
 			*/
+			this.state = 'drawn';
 		},
 		draw: function() {
 			var mesh = this.getMesh(),
@@ -119,17 +122,13 @@ pc.script.create('procedural', function (app) {
 			model.meshInstances = [meshInstance];
 			this.model = model;
 
+			this.state = 'loaded';
+
 			if(this.visible) {
 				this.addComponents();
 			}
 		}
 	};
-	function getSlopeVal(x, y, z) {
-			return y / height + x / width;
-	}
-	function getFlatVal(x, y, z) {
-			return y / height;
-	}
 	function getNoiseVal(x, y, z) {
 		x += chunkPos.x;
 		y += chunkPos.y;
@@ -186,7 +185,6 @@ pc.script.create('procedural', function (app) {
 							cubeTris[i + 8] - cubeTris[i + 2]
 						);
 
-						//debugger;
 						var normal = new pc.Vec3().cross(v1, v2);
 						normal.normalize();
 						var area = v1.length() * v2.length() / 2;
@@ -232,7 +230,6 @@ pc.script.create('procedural', function (app) {
 				var vert = triangles[i][vertKey];
 				idx = getIdx(vert[0], vert[1], vert[2]);
 				//var normal = vertexLookup[idx] //calc normal here
-				//debugger;
 				normal = getAverageNormal(vertexLookup[idx]);
 				//normal.scale(-1);
 				if(!vertexIndexLookup[idx]) {

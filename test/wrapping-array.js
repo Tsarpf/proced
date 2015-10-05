@@ -23,7 +23,7 @@ describe('zones', function() {
 	});
 });
 
-describe('zone function parameters', function() {
+describe('zone function world coordinates', function() {
 	it('should give correct world coordinates when zigzagging around positive side', function() {
 		var array = wrappingArray(3);
 		array.setZoneFunction(0, emptyFunction, emptyFunction);

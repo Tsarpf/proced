@@ -1,9 +1,9 @@
-/*global PROCED:false*/
+/*global PROCED:false, async:false*/
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
-	//var size = 11;
+	var size = 11;
 	//var size = 7;
-	var size = 7;
+	//var size = 7;
 	var wrappingArray = PROCED.wrappingArray(size);
 	var chunkArray = [];
 	var camera;
@@ -11,9 +11,8 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 	var oldPosX, oldPosY, oldPosZ;
 	var first = true;
 
-	var drawQueue = [];
-	var loadQueue = [];
-	var deleteQueue = [];
+	var queue;
+
 	var WorkQueue = function (entity) {
 		this.entity = entity;
 	};
@@ -45,45 +44,10 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			];
 			camera.script.first_person_camera.setPosition(pos);
 			this.initializeZones();
-		},
-		handleDraw: function() {
-			if(drawQueue.length === 0) {
-				return;
-			}
-
-			var obj = drawQueue.shift();
-
-			var wrappedIdx = getIdx(obj.arrayCell.x, obj.arrayCell.y, obj.arrayCell.z);
-
-			/*
-			if(chunkArray[wrappedIdx]) {
-				console.log('fst:');
-				console.log(chunkArray[wrappedIdx].script.procedural.chunkPos);
-				console.log('snd:');
-				console.log(obj.worldCoords);
-			}
-			*/
-			if(chunkArray[wrappedIdx] && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords)) {
-				chunkArray[wrappedIdx].script.procedural.addComponents();	
-			}
-			else {
-				//console.log('not loaded O___o');
-				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true);
-			}
-
+			this.initializeQueue();
 		},
 		vecEqual: function(fst, snd) {
 			return fst.x === snd.x && fst.y === snd.y && fst.z === snd.z;	
-		},
-		handleLoad: function() {
-			if(loadQueue.length === 0) {
-				return;
-			}
-			var obj = loadQueue.shift();
-
-			var wrappedIdx = getIdx(obj.arrayCell.x, obj.arrayCell.y, obj.arrayCell.z);
-
-			chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], false);
 		},
 		getAvg: function(list) {
 			var sum = 0;
@@ -93,45 +57,15 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 			return sum / i;
 		},
-		/*
-		 * TODO: this.handleLoad and code for checking whether chunk already loaded and we can just enable drawing
-		 */
 		queuesNotEmpty: function() {
 			return drawQueue.length !== 0 && loadQueue.length !== 0 && deleteQueue.length !== 0;
 		},
+		/*
 		handleQueue: function() {
-			if(drawQueue.length > 0) {
-				requestAnimationFrame(this.handleDraw);
-			}
-			else if(loadQueue.length > 0) {
-				/*
-				setTimeout(function() {
-					//console.log('load');
-					that.handleLoad();
-				}, 0);
-				*/
-			}
-			/*
-			var timeSpent = 0;
-			var avg = 0;
-			var start = performance.now();
-			var times = [];
-			while(queuesNotEmpty && timeSpent + avg < maxFrameComputingTime) {
-				var t0 = performance.now();
-				if(drawQueue.length > 0) {
-					this.handleDraw();
-				}
-				var t1 = performance.now();
-				times.push(t1-t0);
-				avg = this.getAvg(times);
-				var end = performance.now();
-				var timeSpent = end - start;
-			}
-			*/
-			//console.log('time spent: %d, avg: %d, max: %d', timeSpent, avg, maxFrameComputingTime);
 		},
+		*/
 		update: function() {
-			this.handleQueue();
+			//this.handleQueue();
 			var cameraPos = camera.getPosition();
 			var xChunkPos = Math.floor(cameraPos.x / objCreator.chunkSizeX / objCreator.scaleFactor);
 			var yChunkPos = Math.floor(cameraPos.y / objCreator.chunkSizeY / objCreator.scaleFactor);
@@ -172,44 +106,80 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 		},
 		initializeZones: function() {
-			/*
-			function emptyFn() {}
-			wrappingArray.setZoneFunction(0, emptyFn, emptyFn);
-			wrappingArray.setZoneFunction(1, function () {
-			}, function () {
-			});
-			wrappingArray.setZoneFunction(2, emptyFn, emptyFn);
-			wrappingArray.setZoneFunction(3, emptyFn, emptyFn);
-			*/
-
-			wrappingArray.setZoneFunction(2, function (arrayCell, worldCoords) {
-				drawQueue.push({
-					arrayCell: arrayCell,
-					worldCoords: worldCoords
-				});
-			}, function () {
-			});
-			/*
-			wrappingArray.setZoneFunction(3, function (arrayCell, worldCoords) {
-				//console.log('loading');
-				//console.log(worldCoords);
-				loadQueue.push({
-					arrayCell: arrayCell,
-					worldCoords: worldCoords
-				});
-			}, function () {
-			});
-			*/
-
-			/*
 			wrappingArray.setZoneFunction(4, function (arrayCell, worldCoords) {
-				loadQueue.push({
+				queue.push({
+					type: 'draw',
 					arrayCell: arrayCell,
 					worldCoords: worldCoords
-				});
+				}, 0);
 			}, function () {
 			});
-			*/
+			wrappingArray.setZoneFunction(5, function (arrayCell, worldCoords) {
+				queue.push({
+					type: 'load',
+					arrayCell: arrayCell,
+					worldCoords: worldCoords
+				}, 1);
+			}, function (arrayCell) {
+				var wrappedIdx = getIdx(arrayCell[0], arrayCell[1], arrayCell[2]);
+				var entity = chunkArray[wrappedIdx];
+				queue.push({
+					type: 'destroy',
+					entity: entity
+				});
+			});
+		},
+		initializeQueue: function() {
+			var workerCount = 2;
+			queue = async.priorityQueue(function(task, callback) {
+				switch(task.type) {
+				case 'draw':
+					setTimeout(function() {
+						that.handleDraw(task, callback);
+					}, 0);
+					break;
+				case 'load':
+					setTimeout(function() {
+						that.handleLoad(task, callback);
+					}, 0);
+					break;
+				case 'destroy':
+					setTimeout(function() {
+						that.handleDestroy(task, callback);
+					}, 0);
+
+				}
+			}, workerCount);
+		},
+		handleDestroy: function(obj, callback) {
+			if(!obj.entity) {
+				return callback();
+			}
+			obj.entity.destroy();
+			callback();
+		},
+		handleDraw: function(obj, callback) {
+			var wrappedIdx = getIdx(obj.arrayCell[0], obj.arrayCell[1], obj.arrayCell[2]);
+			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords)) {
+				chunkArray[wrappedIdx].script.procedural.addComponents();	
+			}
+			else {
+				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true);
+			}
+
+			callback();
+		},
+		handleLoad: function(obj, callback) {
+			var wrappedIdx = getIdx(obj.arrayCell[0], obj.arrayCell[1], obj.arrayCell[2]);
+			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script  && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords)) {
+				//Nothing to do, already loaded / loading
+				return callback();
+			}
+			else {
+				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], false);
+			}
+
+			callback();
 		}
 	};
 

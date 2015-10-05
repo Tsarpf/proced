@@ -13,10 +13,10 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 		initialize: function () {
 			noise.seed(2);
 		},
-		chunkSizeX: 8,
-		chunkSizeY: 8,
-		chunkSizeZ: 8,
-		scaleFactor: 8,
+		chunkSizeX: 4,
+		chunkSizeY: 4,
+		chunkSizeZ: 4,
+		scaleFactor: 64,
 		addNewEntity: function(position, visible) {
 			position = [
 				position[XPOS] * (this.chunkSizeX - 1),
