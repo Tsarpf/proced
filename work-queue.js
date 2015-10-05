@@ -2,7 +2,7 @@
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
 	//var size = 5;
-	var size = 9;
+	var size = 13;
 	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 
@@ -143,14 +143,16 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 					entity: entity
 				}, 2);
 			});
+			/*
 			wrappingArray.setZoneFunction(zoneCount - 1, function (arrayCell, worldCoords) {
 				queue.push({
 					type: 'load',
 					arrayCell: arrayCell,
 					worldCoords: worldCoords
 				}, 0);
-			}, function () {
+			}, function (arrayCell) {
 			});
+			*/
 		},
 		initializeQueue: function() {
 			queue = async.priorityQueue(function(task, callback) {

@@ -90,13 +90,13 @@ pc.script.create('procedural', function (app) {
 			});
 			this.entity.model.model = this.model;
 
+			/*
 			app.systems.rigidbody.addComponent(this.entity, {
 				type: 'static'
 			});
 			app.systems.collision.addComponent(this.entity, {
 				type: 'mesh'
 			});
-			/*
 			this.entity.collision.model = this.model;
 			app.systems.collision.implementations.mesh.doRecreatePhysicalShape(this.entity.collision);
 			*/
@@ -240,14 +240,9 @@ pc.script.create('procedural', function (app) {
 					vertexList.push(vert[0] * scaleFactor, vert[1] * scaleFactor, vert[2] * scaleFactor);
 					vertexList.push(normal.x, normal.y, normal.z);
 					var len = vertexList.length;
-					vertexIndexLookup[idx] = {
-						vertexIndices: [len - 3, len - 2, len - 1],
-						//vertexIndices: [len - 6, len - 5, len - 4],
-						normalIndices: [len - 3, len - 2, len - 1]
-					};
+					vertexIndexLookup[idx] = len - 3;
 				}
-				var idxObj = vertexIndexLookup[idx];
-				indexList.push(idxObj.vertexIndices[0] / 6);
+				indexList.push(vertexIndexLookup[idx] / 6);
 			}
 		}
 
