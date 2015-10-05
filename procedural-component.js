@@ -82,21 +82,6 @@ pc.script.create('procedural', function (app) {
 			indices.set(buffers.indexList);
 			indexBuffer.unlock();
 			return indexBuffer;
-/*
-        // var indexBuffer = new pc.gfx.IndexBuffer(context.graphicsDevice, pc.gfx.INDEXFORMAT_UINT16, numIndices, pc.gfx.BUFFER_STATIC);
-        var indexBuffer = new pc.gfx.IndexBuffer(context.graphicsDevice, pc.gfx.INDEXFORMAT_UINT16, numIndices);
-        var indices = new Uint8Array(indexBuffer.lock());
-
-        var indexArray = [];
-        // Should be like this order: http://dan.lecocq.us/wordpress/2009/12/25/triangle-strip-for-grids-a-construction/
-        for(x=0;x<dimminus1;x++) {
-            for(y=0;y<dimminus1;y++) {
-                indexArray.push(x*dimension+y,(x+1)*dimension+y, x*dimension+y+1,(x+1)*dimension+y, x*dimension+y+1, (x+1)*dimension+y+1);
-            }
-        }
-        indices.set(indexArray);
-        indexBuffer.unlock();
-*/
 		},
 		addComponents: function() {
 			this.state = 'drawing';
@@ -137,39 +122,50 @@ pc.script.create('procedural', function (app) {
 			}
 		}
 	};
+	var noiseLookup;
+	
+	function getNoiseIdx(x, y, z) {
+		return x + width * (y + height * z);
+	}
+
+	/*
 	function getNoiseVal(x, y, z) {
 		x += chunkOffset.x;
 		y += chunkOffset.y;
 		z += chunkOffset.z;
-		/*
-		   var octave1 = noise.simplex3(
-			x / 0.1 + dataStep.x,
-			y / 0.1 + dataStep.y,
-			z / 0.1 + dataStep.z
-			) / 10;
-			var octave2 = noise.simplex3(
-			x / 35 + dataStep.x,
-			y / 35 + dataStep.y,
-			z / 35 + dataStep.z
-			);
-			var octave3 = noise.simplex3(
-			x / 50 + dataStep.x,
-			y / 50 + dataStep.y,
-			z / 50 + dataStep.z
-			);
-	   */
-		var octave3 = noise.simplex3(
-				x / 5 + dataStep.x,
-				y / 5 + dataStep.y,
-				z / 5 + dataStep.z
-				);
 
-		//return octave1 + octave2 + octave3;
-		return octave3;
+		return noise.simplex3(
+			x / 10 + dataStep.x,
+			y / 10 + dataStep.y,
+			z / 10 + dataStep.z
+		);
+	}
+	*/
+	function getNoiseVal(x, y, z) {
+		var idx = getNoiseIdx(x,y,z);
+		x += chunkOffset.x;
+		y += chunkOffset.y;
+		z += chunkOffset.z;
+
+		var value;
+		var lookupVal = noiseLookup[idx];
+		if(lookupVal === undefined) {
+			value = noise.simplex3(
+				x / 10 + dataStep.x,
+				y / 10 + dataStep.y,
+				z / 10 + dataStep.z
+			);
+			noiseLookup[idx] = value;
+		}
+		else {
+			value = lookupVal;
+		}
+		return value;
 	}
 
 	function getBuffers() {
 		var sampler = getNoiseVal;
+		noiseLookup = [];
 		//var sampler = getSlopeVal;
 		//var sampler = getFlatVal;
 		var triangles = [];

@@ -2,8 +2,8 @@
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
 	//var size = 5;
-	var size = 7;
-	var lastZoneIdx = Math.ceil(7 / 3);
+	var size = 9;
+	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 
 	var workerCount = 1;
@@ -129,20 +129,12 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 		},
 		initializeZones: function() {
-			wrappingArray.setZoneFunction(lastZoneIdx - 1, function (arrayCell, worldCoords) {
+			wrappingArray.setZoneFunction(zoneCount - 2, function (arrayCell, worldCoords) {
 				queue.push({
 					type: 'draw',
 					arrayCell: arrayCell,
 					worldCoords: worldCoords
 				}, 1);
-			}, function () {
-			});
-			wrappingArray.setZoneFunction(lastZoneIdx, function (arrayCell, worldCoords) {
-				queue.push({
-					type: 'load',
-					arrayCell: arrayCell,
-					worldCoords: worldCoords
-				}, 0);
 			}, function (arrayCell) {
 				var wrappedIdx = getIdx(arrayCell[0], arrayCell[1], arrayCell[2]);
 				var entity = chunkArray[wrappedIdx];
@@ -150,6 +142,14 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 					type: 'destroy',
 					entity: entity
 				}, 2);
+			});
+			wrappingArray.setZoneFunction(zoneCount - 1, function (arrayCell, worldCoords) {
+				queue.push({
+					type: 'load',
+					arrayCell: arrayCell,
+					worldCoords: worldCoords
+				}, 0);
+			}, function () {
 			});
 		},
 		initializeQueue: function() {
@@ -212,10 +212,9 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			else {
 				requestAnimationFrame(function() {
 					chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], false);
+					callback();
 				});
 			}
-
-			callback();
 		}
 	};
 
