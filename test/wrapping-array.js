@@ -106,4 +106,19 @@ describe('zone function world coordinates', function() {
 			array.dirYPlus();
 		}
 	});
+
+	it.only('should give correct world coordinates with array size of 5', function() {
+		var array = wrappingArray(5);
+		array.setZoneFunction(1, function(wrappedIdx, worldPos) {
+			assert.equal(worldPos.y, 0);
+		}, emptyFunction);
+		/*
+		array.setZoneFunction(2, function(wrappedIdx, worldPos) {
+			console.log('zone 2');
+			console.log(worldPos);
+			//assert.equal(worldPos.z, -1 - i);
+		}, emptyFunction);
+		*/
+		array.dirYMinus();
+	});
 });

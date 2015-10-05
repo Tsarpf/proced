@@ -68,7 +68,6 @@ PROCED.wrappingArray = function(size) {
 	};
 	pub.dirXPlus = function(minus) {
 		for(var i = 0; i < zonesX.length; i++) {
-			//console.log('zone' + i);
 			if(minus) {
 				zonesX[i].max = getPrevWrap(zonesX[i].max);
 				zonesX[i].min = getPrevWrap(zonesX[i].min);

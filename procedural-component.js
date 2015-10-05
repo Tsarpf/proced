@@ -7,6 +7,11 @@ pc.script.create('procedural', function (app) {
 		this.entity = entity;
 	};
 
+	var chunkOffset = {
+		x: 0,
+		y: 0,
+		z: 0
+	};
 	ProceduralObject.prototype = {
 		initialize: function () {
 			if(!this.chunkSize) {
@@ -16,6 +21,9 @@ pc.script.create('procedural', function (app) {
 			height = this.chunkSize.y;
 			depth = this.chunkSize.z;
 			chunkPos = this.chunkPos;
+			chunkOffset.x = this.chunkPos.x * (width - 1);
+			chunkOffset.y = this.chunkPos.y * (height - 1);
+			chunkOffset.z = this.chunkPos.z * (depth - 1);
 			scaleFactor = this.scaleFactor;
 			isolevel = 0.5;
 			dataStep = {
@@ -130,9 +138,9 @@ pc.script.create('procedural', function (app) {
 		}
 	};
 	function getNoiseVal(x, y, z) {
-		x += chunkPos.x;
-		y += chunkPos.y;
-		z += chunkPos.z;
+		x += chunkOffset.x;
+		y += chunkOffset.y;
+		z += chunkOffset.z;
 		/*
 		   var octave1 = noise.simplex3(
 			x / 0.1 + dataStep.x,
@@ -151,9 +159,9 @@ pc.script.create('procedural', function (app) {
 			);
 	   */
 		var octave3 = noise.simplex3(
-				x / 10 + dataStep.x,
-				y / 10 + dataStep.y,
-				z / 10 + dataStep.z
+				x / 5 + dataStep.x,
+				y / 5 + dataStep.y,
+				z / 5 + dataStep.z
 				);
 
 		//return octave1 + octave2 + octave3;

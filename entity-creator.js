@@ -13,15 +13,15 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 		initialize: function () {
 			noise.seed(2);
 		},
-		chunkSizeX: 4,
-		chunkSizeY: 4,
-		chunkSizeZ: 4,
-		scaleFactor: 64,
+		chunkSizeX: 8,
+		chunkSizeY: 8,
+		chunkSizeZ: 8,
+		scaleFactor: 32,
 		addNewEntity: function(position, visible) {
 			position = [
-				position[XPOS] * (this.chunkSizeX - 1),
-				position[YPOS] * (this.chunkSizeY - 1),
-				position[ZPOS] * (this.chunkSizeZ - 1)
+				position[XPOS],
+				position[YPOS],
+				position[ZPOS]
 			];
 			var entity = new pc.Entity();	
 			entity.addComponent('script', {
@@ -52,9 +52,9 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 				}]
 			});
 			entity.setLocalPosition(
-				position[XPOS] * this.scaleFactor,
-				position[YPOS] * this.scaleFactor,
-				position[ZPOS] * this.scaleFactor
+				position[XPOS] * (this.chunkSizeX - 1) * this.scaleFactor,
+				position[YPOS] * (this.chunkSizeY - 1) * this.scaleFactor,
+				position[ZPOS] * (this.chunkSizeZ - 1) * this.scaleFactor
 			);
 
 			app.root.addChild(entity);
