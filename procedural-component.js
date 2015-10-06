@@ -1,7 +1,8 @@
 //globals for eslint
 /*global noise:false, PROCED:false*/
 
-var width, height, depth, isolevel, dataStep, chunkPos, scaleFactor;
+//var width, height, depth, isolevel, dataStep, chunkPos, scaleFactor;
+var width, height, depth, isolevel, dataStep, scaleFactor;
 pc.script.create('procedural', function (app) {
 	var ProceduralObject = function (entity) {
 		this.entity = entity;
@@ -20,7 +21,7 @@ pc.script.create('procedural', function (app) {
 			width = this.chunkSize.x;
 			height = this.chunkSize.y;
 			depth = this.chunkSize.z;
-			chunkPos = this.chunkPos;
+			//chunkPos = this.chunkPos;
 			chunkOffset.x = this.chunkPos.x * (width - 1);
 			chunkOffset.y = this.chunkPos.y * (height - 1);
 			chunkOffset.z = this.chunkPos.z * (depth - 1);
@@ -89,17 +90,6 @@ pc.script.create('procedural', function (app) {
 				type: 'asset'
 			});
 			this.entity.model.model = this.model;
-
-			/*
-			app.systems.rigidbody.addComponent(this.entity, {
-				type: 'static'
-			});
-			app.systems.collision.addComponent(this.entity, {
-				type: 'mesh'
-			});
-			this.entity.collision.model = this.model;
-			app.systems.collision.implementations.mesh.doRecreatePhysicalShape(this.entity.collision);
-			*/
 			this.state = 'drawn';
 		},
 		draw: function() {
@@ -128,19 +118,6 @@ pc.script.create('procedural', function (app) {
 		return x + width * (y + height * z);
 	}
 
-	/*
-	function getNoiseVal(x, y, z) {
-		x += chunkOffset.x;
-		y += chunkOffset.y;
-		z += chunkOffset.z;
-
-		return noise.simplex3(
-			x / 10 + dataStep.x,
-			y / 10 + dataStep.y,
-			z / 10 + dataStep.z
-		);
-	}
-	*/
 	function getNoiseVal(x, y, z) {
 		var idx = getNoiseIdx(x,y,z);
 		x += chunkOffset.x;
@@ -155,6 +132,21 @@ pc.script.create('procedural', function (app) {
 				y / 10 + dataStep.y,
 				z / 10 + dataStep.z
 			);
+			value += noise.simplex3(
+				x / 10 + dataStep.x,
+				y / 10 + dataStep.y,
+				z / 10 + dataStep.z
+			) / 10;
+			/*
+			value += noise.simplex3(
+				x / 2 + dataStep.x,
+				y / 2 + dataStep.y,
+				z / 2 + dataStep.z
+			) / 20;
+			*/
+			if(y < 0) {
+				value += 1;
+			}
 			noiseLookup[idx] = value;
 		}
 		else {
@@ -245,19 +237,6 @@ pc.script.create('procedural', function (app) {
 				indexList.push(vertexIndexLookup[idx] / 6);
 			}
 		}
-
-		
-		/*
-		return {vertexList: [
-			1, 2, 0, //0-2
-			1, 2, 1, //3-5
-			0, 2, 0, //6-8
-			0, 2, 1 //9 - 11
-		], indexList: [
-			0, 1, 2, //first triangle
-			1, 3, 2
-		]};
-		*/
 		return {vertexList: vertexList, indexList: indexList};
 	}
 

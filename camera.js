@@ -1,5 +1,5 @@
 pc.script.create('first_person_camera', function (app) {
-	var SPEED = 30;
+	var SPEED = 400;
 
 	var FirstPersonCamera = function (entity) {
 		this.entity = entity;

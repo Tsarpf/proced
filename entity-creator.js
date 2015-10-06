@@ -11,12 +11,12 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 
 	CreatorObject.prototype = {
 		initialize: function () {
-			noise.seed(2);
+			noise.seed(4);
 		},
 		chunkSizeX: 8,
 		chunkSizeY: 8,
 		chunkSizeZ: 8,
-		scaleFactor: 32,
+		scaleFactor: 256,
 		addNewEntity: function(position, visible) {
 			position = [
 				position[XPOS],
