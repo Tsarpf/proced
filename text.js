@@ -6,7 +6,7 @@ pc.script.create('ui', function () {
 	UI.prototype = {
 		initialize: function () {
 			// Create a div centred inside the main canvas
-			var div = document.createElement('div');
+			var div = document.createElement('marquee');
 			div.style.position = 'absolute';
 			div.style.width = '500px';
 			div.style.top = '50%';
@@ -23,7 +23,7 @@ pc.script.create('ui', function () {
 			this.div = div;
 
 			// Set some default state on the UI element
-			this.setText('GAME OVER');
+			this.setText('Marching cubes is an awesome algorithm! yay! this is a lot of text which I intend to show and people should read asdaasd very much yes indeed!');
 			this.setVisibility(true);
 		},
 

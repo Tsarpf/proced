@@ -2,7 +2,7 @@
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
 	//var size = 5;
-	var size = 9;
+	var size = 7;
 	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 
@@ -129,25 +129,14 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 		},
 		initializeZones: function() {
-			wrappingArray.setZoneFunction(zoneCount - 2, function (arrayCell, worldCoords) {
+			wrappingArray.setZoneFunction(zoneCount - 1, function (arrayCell, worldCoords) {
 				queue.push({
 					type: 'draw',
 					arrayCell: arrayCell,
 					worldCoords: worldCoords
 				}, 1);
-			//}, function (arrayCell, worldCoords) {
-			}, function () {
-			});
-			//wrappingArray.setZoneFunction(zoneCount - 1, function (arrayCell, worldCoords) {
-			wrappingArray.setZoneFunction(zoneCount - 1, function () {
-				/*
-				queue.push({
-					type: 'load',
-					arrayCell: arrayCell,
-					worldCoords: worldCoords
-				}, 0);
-				*/
 			}, function (arrayCell, worldCoords) {
+			//}, function () {
 				var wrappedIdx = getIdx(arrayCell[0], arrayCell[1], arrayCell[2]);
 				var entity = chunkArray[wrappedIdx];
 				if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, worldCoords)) {
