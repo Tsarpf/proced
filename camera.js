@@ -1,6 +1,7 @@
 pc.script.create('first_person_camera', function (app) {
 	var SPEED = 400;
 
+	//var camPos = new pc.Vec3();
 	var FirstPersonCamera = function (entity) {
 		this.entity = entity;
 
@@ -20,6 +21,15 @@ pc.script.create('first_person_camera', function (app) {
 
 	FirstPersonCamera.prototype = {
 		update: function (dt) {
+			/*
+			app.renderLine(
+				new pc.Vec3(camPos.x - 10, camPos.y, camPos.z),
+				new pc.Vec3(camPos.x - 10, camPos.y, camPos.z + 5),
+				new pc.Color(1,1,1)
+			);
+			*/
+
+
 			// Update the camera's orientation
 			this.entity.setEulerAngles(this.ex, this.ey, 0);
 
@@ -53,7 +63,8 @@ pc.script.create('first_person_camera', function (app) {
 
 		setPosition: function(position) {
 			this.entity.setPosition(position[0], position[1], position[2]);
-			console.log(position);
+			//position = this.entity.getPosition();
+			//camPos = new pc.Vec3(position[0], position[1], position[2]);
 		}
 	};
 
