@@ -301,7 +301,6 @@ pc.script.create('procedural', function (app) {
 		}
 	};
 
-
 	function getAverageNormal(trianglesData) {
 		var sumVec = new pc.Vec3(0,0,0);
 		for(var i = 0; i < trianglesData.length; i++) {

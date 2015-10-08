@@ -15,6 +15,8 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 	var oldPosX, oldPosY, oldPosZ;
 	var first = true;
 
+	var updateEnabled = false;
+
 	var queue;
 
 	var WorkQueue = function (entity) {
@@ -27,8 +29,8 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			objCreator = this.entity.script.objcreator;
 			camera = app.root.findByName('Camera');
 
-			var t0 = performance.now();
-			//Initialize world
+			//var t0 = performance.now();
+			/*
 			for(var x = 1; x < size - 1; x++) {
 				for(var y = 1; y < size - 1; y++) {
 					for(var z = 1; z < size - 1; z++) {
@@ -36,6 +38,19 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 					}
 				}
 			}
+			*/
+
+			/*
+			for(var x = 0; x < size; x++) {
+				for(var y = 0; y < size; y++) {
+					for(var z = 0; z < size; z++) {
+						chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true);
+					}
+				}
+			}
+			*/
+
+			/*
 			x = 0;
 			for(y = 0; y < size; y++) {
 				for(z = 0; z < size; z++) {
@@ -56,8 +71,10 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 					chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], false);
 				}
 			}
+			*/
 			//objCreator.addNewEntity([0,0,0], true);
-			var t1 = performance.now();
+			//var t1 = performance.now();
+			/*
 			console.log('time spent initializing: %d', t1 - t0);
 
 			//Place camera in the middle of the initial world
@@ -69,6 +86,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			camera.script.first_person_camera.setPosition(pos);
 			this.initializeZones();
 			this.initializeQueue();
+			*/
 		},
 		vecEqual: function(fst, snd) {
 			return fst.x === snd.x && fst.y === snd.y && fst.z === snd.z;	
@@ -82,6 +100,15 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			return sum / i;
 		},
 		update: function() {
+			/*
+			 *
+			 * DISABLED BECAUSE OF DEMO STUFF!
+			 *
+			 */
+			if(!updateEnabled) {
+				return;
+			}
+
 			var cameraPos = camera.getPosition();
 			var xChunkPos = Math.floor(cameraPos.x / objCreator.chunkSizeX / objCreator.scaleFactor);
 			var yChunkPos = Math.floor(cameraPos.y / objCreator.chunkSizeY / objCreator.scaleFactor);

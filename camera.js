@@ -14,7 +14,7 @@ pc.script.create('first_person_camera', function (app) {
 		// Disabling the app menu stops the browser displaying a menu when
 		// you right-click the page
 		app.mouse.disableContextMenu();
-		app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
+		//app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
 		app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
 
 	};
@@ -47,12 +47,14 @@ pc.script.create('first_person_camera', function (app) {
 			}
 		},
 
+		/*
 		onMouseMove: function (event) {
 			// Update the current Euler angles, clamp the pitch.
 			this.ex -= event.dy / 5;
 			this.ex = pc.math.clamp(this.ex, -90, 90);
 			this.ey -= event.dx / 5;
 		},
+		*/
 
 		onMouseDown: function () { //event is given as arg
 			// When the mouse button is clicked try and capture the pointer

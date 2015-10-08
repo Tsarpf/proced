@@ -9,7 +9,7 @@ pc.script.create('ui', function () {
 			var div = document.createElement('div');
 			div.style.position = 'absolute';
 			div.style.width = '500px';
-			div.style.top = '50%';
+			div.style.top = '10%';
 			div.style.left = '50%';
 			div.style.marginLeft = '-250px';            
 			div.style.textAlign = 'center';
@@ -122,7 +122,7 @@ pc.script.create('ui', function () {
 			this.progressBar.style.position = 'absolute';
 			this.progressBar.style.width = '500px';
 			this.progressBar.style.height = '10px';
-			this.progressBar.style.top = '40%';
+			this.progressBar.style.top = '4%';
 			this.progressBar.style.left = '50%';
 			this.progressBar.style.marginLeft = '-250px';            
 			this.progressBar.style.textAlign = 'center';
