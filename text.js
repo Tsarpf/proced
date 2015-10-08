@@ -29,34 +29,8 @@ pc.script.create('ui', function () {
 			this.setVisibility(true);
 			this.initializeProgressBar();
 
-			var texts = [
-				{
-					text: 'tetsing testings',
-					time: 10000
-				},
-				{
-					text: 'asding asdfing',
-					time: 500 
-				},
-				{
-					text: 'hurr durr',
-					time: 1000
-				},
-				{
-					text: 'hurr durrr',
-					time: 1000
-				},
-				{
-					text: 'hurr durrrrr',
-					time: 1000
-				},
-				{
-					text: 'derp herp : )',
-					time: 1000
-				}
-			];
 			
-			this.queueMultipleText(texts);
+			//this.queueMultipleText(texts);
 		},
 
 		update: function() {
