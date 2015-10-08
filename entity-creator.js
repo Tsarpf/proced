@@ -17,7 +17,7 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 		chunkSizeY: 8,
 		chunkSizeZ: 8,
 		scaleFactor: 256,
-		addNewEntity: function(position, visible) {
+		addNewEntity: function(position, visible, sampler) {
 			position = [
 				position[XPOS],
 				position[YPOS],
@@ -47,6 +47,10 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 						name: 'visible',
 						type: 'boolean',
 						value: visible
+					}, {
+						name: 'sampler',
+						type: 'string',
+						value: sampler 
 					}],
 					name: 'procComponent'
 				}]

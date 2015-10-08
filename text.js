@@ -121,7 +121,8 @@ pc.script.create('ui', function () {
 			this.progressBar.setAttribute('max', '100');
 			this.progressBar.style.position = 'absolute';
 			this.progressBar.style.width = '500px';
-			this.progressBar.style.top = '50%';
+			this.progressBar.style.height = '10px';
+			this.progressBar.style.top = '40%';
 			this.progressBar.style.left = '50%';
 			this.progressBar.style.marginLeft = '-250px';            
 			this.progressBar.style.textAlign = 'center';

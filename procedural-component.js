@@ -1,8 +1,8 @@
 //globals for eslint
 /*global noise:false, PROCED:false*/
 
-//var width, height, depth, isolevel, dataStep, chunkPos, scaleFactor;
-var width, height, depth, isolevel, dataStep, scaleFactor;
+//these should be refactored into the component.
+var height, depth, isolevel, dataStep, scaleFactor;
 pc.script.create('procedural', function (app) {
 	var ProceduralObject = function (entity) {
 		this.entity = entity;
@@ -18,17 +18,17 @@ pc.script.create('procedural', function (app) {
 			if(!this.chunkSize) {
 				return;
 			}
-			width = this.chunkSize.x;
+			this.width = this.chunkSize.x;
 			height = this.chunkSize.y;
 			depth = this.chunkSize.z;
 			//chunkPos = this.chunkPos;
-			chunkOffset.x = this.chunkPos.x * (width - 1);
+			chunkOffset.x = this.chunkPos.x * (this.width - 1);
 			chunkOffset.y = this.chunkPos.y * (height - 1);
 			chunkOffset.z = this.chunkPos.z * (depth - 1);
 			scaleFactor = this.scaleFactor;
 			isolevel = 0.5;
 			dataStep = {
-				x: 1 / width,
+				x: 1 / this.width,
 				y: 1 / height,
 				z: 1 / depth
 			};
@@ -49,7 +49,8 @@ pc.script.create('procedural', function (app) {
 			]);
 
 			//Marching etc done at this point
-			var buffers = getBuffers();
+			//console.log('getting buffers');
+			var buffers = this.getBuffers();
 
 			var vertexBuffer = new pc.VertexBuffer(
 				app.graphicsDevice,
@@ -110,135 +111,196 @@ pc.script.create('procedural', function (app) {
 			if(this.visible) {
 				this.addComponents();
 			}
-		}
-	};
-	var noiseLookup;
-	
-	function getNoiseIdx(x, y, z) {
-		return x + width * (y + height * z);
-	}
+		},
+		getBuffers: function() {
+			var sampler = this.getNoiseVal;
+			this.noiseLookup = [];
+			//var sampler = getSlopeVal;
+			//var sampler = getFlatVal;
+			var triangles = [];
+			var vertexLookup = [];
+			for(var z = 0; z < depth - 1; z++) {
+				for(var y = 0; y < height - 1; y++) {
+					for(var x = 0; x < this.width - 1; x++) {
+						var cube = this.getCubeAtPos(x,y,z, sampler);
+						var cubeTris = [];
+						PROCED.polygonize(cube, isolevel, cubeTris);
 
-	function getNoiseVal(x, y, z) {
-		var idx = getNoiseIdx(x,y,z);
-		x += chunkOffset.x;
-		y += chunkOffset.y;
-		z += chunkOffset.z;
+						for(var i = 0; i < cubeTris.length; i+=9) {
+							var v1 = new pc.Vec3(
+								cubeTris[i + 3] - cubeTris[i + 0],
+								cubeTris[i + 4] - cubeTris[i + 1],
+								cubeTris[i + 5] - cubeTris[i + 2]
+							);
+							var v2 = new pc.Vec3(
+								cubeTris[i + 6] - cubeTris[i + 0],
+								cubeTris[i + 7] - cubeTris[i + 1],
+								cubeTris[i + 8] - cubeTris[i + 2]
+							);
 
-		var value;
-		var lookupVal = noiseLookup[idx];
-		if(lookupVal === undefined) {
-			value = noise.simplex3(
-				x / 10 + dataStep.x,
-				y / 10 + dataStep.y,
-				z / 10 + dataStep.z
-			);
-			value += noise.simplex3(
-				x / 10 + dataStep.x,
-				y / 10 + dataStep.y,
-				z / 10 + dataStep.z
-			) / 10;
-			/*
-			value += noise.simplex3(
-				x / 2 + dataStep.x,
-				y / 2 + dataStep.y,
-				z / 2 + dataStep.z
-			) / 20;
-			*/
-			if(y < 0) {
-				value += 1;
-			}
-			noiseLookup[idx] = value;
-		}
-		else {
-			value = lookupVal;
-		}
-		return value;
-	}
+							var normal = new pc.Vec3().cross(v1, v2);
+							normal.normalize();
+							var area = v1.length() * v2.length() / 2;
 
-	function getBuffers() {
-		var sampler = getNoiseVal;
-		noiseLookup = [];
-		//var sampler = getSlopeVal;
-		//var sampler = getFlatVal;
-		var triangles = [];
-		var vertexLookup = [];
-		for(var z = 0; z < depth - 1; z++) {
-			for(var y = 0; y < height - 1; y++) {
-				for(var x = 0; x < width - 1; x++) {
-					var cube = getCubeAtPos(x,y,z, sampler);
-					var cubeTris = [];
-					PROCED.polygonize(cube, isolevel, cubeTris);
-
-					for(var i = 0; i < cubeTris.length; i+=9) {
-						var v1 = new pc.Vec3(
-							cubeTris[i + 3] - cubeTris[i + 0],
-							cubeTris[i + 4] - cubeTris[i + 1],
-							cubeTris[i + 5] - cubeTris[i + 2]
-						);
-						var v2 = new pc.Vec3(
-							cubeTris[i + 6] - cubeTris[i + 0],
-							cubeTris[i + 7] - cubeTris[i + 1],
-							cubeTris[i + 8] - cubeTris[i + 2]
-						);
-
-						var normal = new pc.Vec3().cross(v1, v2);
-						normal.normalize();
-						var area = v1.length() * v2.length() / 2;
-
-						var triangle = {
-							fst: [cubeTris[i + 0], cubeTris[i + 1], cubeTris[i + 2]],
-							snd: [cubeTris[i + 3], cubeTris[i + 4], cubeTris[i + 5]],
-							trd: [cubeTris[i + 6], cubeTris[i + 7], cubeTris[i + 8]]
-							/*
-							normal: normal,
-							area: area
-							*/
-						};
-						triangles.push(triangle);
-						
-						//Add triangle normals for each vertex here
-						//so they can be used in the next pass when generating the actual vertex and index buffers
-						for(var j = i; j < i + 9; j+=3) {
-							var idx = getIdx(cubeTris[j], cubeTris[j + 1], cubeTris[j+2]);
-							if(!vertexLookup[idx]) {
-								vertexLookup[idx] = [{
-									normal: normal,
-									area: area
-								}];
-							}
-							else {
-								vertexLookup[idx].push({
-									normal: normal,
-									area: area
-								});
+							var triangle = {
+								fst: [cubeTris[i + 0], cubeTris[i + 1], cubeTris[i + 2]],
+								snd: [cubeTris[i + 3], cubeTris[i + 4], cubeTris[i + 5]],
+								trd: [cubeTris[i + 6], cubeTris[i + 7], cubeTris[i + 8]]
+								/*
+								normal: normal,
+								area: area
+								*/
+							};
+							triangles.push(triangle);
+							
+							//Add triangle normals for each vertex here
+							//so they can be used in the next pass when generating the actual vertex and index buffers
+							for(var j = i; j < i + 9; j+=3) {
+								var idx = getIdx(cubeTris[j], cubeTris[j + 1], cubeTris[j+2]);
+								if(!vertexLookup[idx]) {
+									vertexLookup[idx] = [{
+										normal: normal,
+										area: area
+									}];
+								}
+								else {
+									vertexLookup[idx].push({
+										normal: normal,
+										area: area
+									});
+								}
 							}
 						}
 					}
 				}
 			}
-		}
 
-		var vertexList = [];
-		var indexList = [];
-		var vertexIndexLookup = [];
-		for(i = 0; i < triangles.length; i++) {
-			for(var vertKey in triangles[i]) {
-				var vert = triangles[i][vertKey];
-				idx = getIdx(vert[0], vert[1], vert[2]);
-				//var normal = vertexLookup[idx] //calc normal here
-				normal = getAverageNormal(vertexLookup[idx]);
-				//normal.scale(-1);
-				if(!vertexIndexLookup[idx]) {
-					vertexList.push(vert[0] * scaleFactor, vert[1] * scaleFactor, vert[2] * scaleFactor);
-					vertexList.push(normal.x, normal.y, normal.z);
-					var len = vertexList.length;
-					vertexIndexLookup[idx] = len - 3;
+			var vertexList = [];
+			var indexList = [];
+			var vertexIndexLookup = [];
+			for(i = 0; i < triangles.length; i++) {
+				for(var vertKey in triangles[i]) {
+					var vert = triangles[i][vertKey];
+					idx = getIdx(vert[0], vert[1], vert[2]);
+					//var normal = vertexLookup[idx] //calc normal here
+					normal = getAverageNormal(vertexLookup[idx]);
+					//normal.scale(-1);
+					if(!vertexIndexLookup[idx]) {
+						vertexList.push(vert[0] * scaleFactor, vert[1] * scaleFactor, vert[2] * scaleFactor);
+						vertexList.push(normal.x, normal.y, normal.z);
+						var len = vertexList.length;
+						vertexIndexLookup[idx] = len - 3;
+					}
+					indexList.push(vertexIndexLookup[idx] / 6);
 				}
-				indexList.push(vertexIndexLookup[idx] / 6);
 			}
+			return {vertexList: vertexList, indexList: indexList};
+		},
+		getNoiseIdx: function(x,y,z) {
+			return x + this.width * (y + height * z);
+		},
+		noiseLookup: [],
+		getNoiseVal: function(x, y, z) {
+			var idx = this.getNoiseIdx(x,y,z);
+			x += chunkOffset.x;
+			y += chunkOffset.y;
+			z += chunkOffset.z;
+
+			var value;
+			var lookupVal = this.noiseLookup[idx];
+			if(lookupVal === undefined) {
+				value = noise.simplex3(
+					x / 10 + dataStep.x,
+					y / 10 + dataStep.y,
+					z / 10 + dataStep.z
+				);
+				value += noise.simplex3(
+					x / 10 + dataStep.x,
+					y / 10 + dataStep.y,
+					z / 10 + dataStep.z
+				) / 10;
+				if(y < 0) {
+					value += 1;
+				}
+				this.noiseLookup[idx] = value;
+			}
+			else {
+				value = lookupVal;
+			}
+			return value;
+		},
+		getCubeAtPos: function(x, y, z, sampler) {
+			var cube = [];
+			sampler = sampler.bind(this);
+			cube[0] = {
+				pos: {
+					x: x,
+					y: y,
+					z: z
+				},
+				val: sampler(x,y,z)
+			};
+			cube[1] = {
+				pos: {
+					x: x + 1,
+					y: y,
+					z: z
+				},
+				val: sampler(x + 1,y,z)
+			};
+			cube[2] = {
+				pos: {
+					x: x + 1,
+					y: y,
+					z: z + 1
+				},
+				val: sampler(x + 1,y,z + 1)
+			};
+			cube[3] = {
+				pos: {
+					x: x,
+					y: y,
+					z: z + 1
+				},
+				val: sampler(x,y,z + 1)
+			};
+			cube[4] = {
+				pos: {
+					x: x,
+					y: y + 1,
+					z: z
+				},
+				val: sampler(x,y + 1, z)
+			};
+			cube[5] = {
+				pos: {
+					x: x + 1,
+					y: y + 1,
+					z: z
+				},
+				val: sampler(x + 1,y + 1,z)
+			};
+			cube[6] = {
+				pos: {
+					x: x + 1,
+					y: y + 1,
+					z: z + 1
+				},
+				val: sampler(x + 1, y + 1, z + 1)
+			};
+			cube[7] = {
+				pos: {
+					x: x,
+					y: y + 1,
+					z: z + 1
+				},
+				val: sampler(x,y + 1, z + 1)
+			};
+
+			return cube;
 		}
-		return {vertexList: vertexList, indexList: indexList};
-	}
+	};
+
 
 	function getAverageNormal(trianglesData) {
 		var sumVec = new pc.Vec3(0,0,0);
@@ -254,75 +316,6 @@ pc.script.create('procedural', function (app) {
 		return '' + x.toFixed(decimalCount) + ' ' + y.toFixed(decimalCount) + ' ' + z.toFixed(decimalCount);
 	}
 
-	function getCubeAtPos(x, y, z, sampler) {
-		var cube = [];
-		cube[0] = {
-			pos: {
-				x: x,
-				y: y,
-				z: z
-			},
-			val: sampler(x,y,z)
-		};
-		cube[1] = {
-			pos: {
-				x: x + 1,
-				y: y,
-				z: z
-			},
-			val: sampler(x + 1,y,z)
-		};
-		cube[2] = {
-			pos: {
-				x: x + 1,
-				y: y,
-				z: z + 1
-			},
-			val: sampler(x + 1,y,z + 1)
-		};
-		cube[3] = {
-			pos: {
-				x: x,
-				y: y,
-				z: z + 1
-			},
-			val: sampler(x,y,z + 1)
-		};
-		cube[4] = {
-			pos: {
-				x: x,
-				y: y + 1,
-				z: z
-			},
-			val: sampler(x,y + 1, z)
-		};
-		cube[5] = {
-			pos: {
-				x: x + 1,
-				y: y + 1,
-				z: z
-			},
-			val: sampler(x + 1,y + 1,z)
-		};
-		cube[6] = {
-			pos: {
-				x: x + 1,
-				y: y + 1,
-				z: z + 1
-			},
-			val: sampler(x + 1, y + 1, z + 1)
-		};
-		cube[7] = {
-			pos: {
-				x: x,
-				y: y + 1,
-				z: z + 1
-			},
-			val: sampler(x,y + 1, z + 1)
-		};
-
-		return cube;
-	}
 
 	return ProceduralObject;
 });
