@@ -14,7 +14,7 @@ pc.script.create('first_person_camera', function (app) {
 		// Disabling the app menu stops the browser displaying a menu when
 		// you right-click the page
 		app.mouse.disableContextMenu();
-		//app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
+		app.mouse.on(pc.EVENT_MOUSEMOVE, this.onMouseMove, this);
 		app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
 
 	};
