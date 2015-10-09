@@ -2,7 +2,7 @@
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
 	//var size = 5;
-	var size = 7;
+	var size = 9;
 	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 

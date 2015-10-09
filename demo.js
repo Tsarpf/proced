@@ -4,14 +4,24 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 		this.entity = entity;
 	};
 
-	var sceneOneTime = 1000 * 1;
-	var sceneTwoTime = 1000 * 5;
-	var sceneThreeTime = 1000 * 5;
-	var sceneFourTime = 1000 * 10;
-	var sceneFiveTime = 1000 * 20;
-	var sceneSixTime = 1000 * 10;
+	//* FINAL TIMES !?
+	var sceneOneTime = 1000 * 30;
+	var sceneTwoTime = 1000 * 30;
+	var sceneThreeTime = 1000 * 30;
+	var sceneFourTime = 1000 * 30;
+	var sceneFiveTime = 1000 * 30;
+	var sceneSixTime = 1000 * 60;
 	var sceneTwoLerpTime = 5000;
-	//var sceneThreeTime = 1000 * 5;
+	/*
+	 * TEST TIMES
+	var sceneOneTime = 1000 * 1;
+	var sceneTwoTime = 1000 * 6;
+	var sceneThreeTime = 1000 * 10;
+	var sceneFourTime = 1000 * 20;
+	var sceneFiveTime = 1000 * 20;
+	var sceneSixTime = 1000 * 60;
+	var sceneTwoLerpTime = 5000;
+	*/
 	Demo.prototype = {
 		initialize: function() {
 			this.camera = app.root.findByName('Camera');
@@ -23,11 +33,11 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			//
 			var texts = [
 				{
-					text: 'Random noise function given two inputs <br><br> - Little change between input values -> difference between the output values is random <br><br> - Big change between input values -> difference still random',
+					text: 'A random (noise) function <br><br> - In: two values near each other <br> Out: two random values <br><br> - In: two values far from each other <br> Out: two random values <br> <br>',
 					time: sceneOneTime 
 				},
 				{
-					text: 'Coherent noise function with two inputs <br><br> - Little change between input values -> little change between results <br><br> - Big change in input to function -> difference random',
+					text: 'Coherent noise function<br><br> - In: two values near each other <br> Out: two values near each other<br><br> - In: two values far away from each other <br> Out: two random values',
 					time: sceneTwoTime 
 				}
 			];
@@ -76,8 +86,8 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			//var bottom = 0;
 
 			var z = -5;
-			var leftEdge = -7;
-			var rightEdge = 7;
+			var leftEdge = -4;
+			var rightEdge = 4;
 
 			var length = rightEdge - leftEdge;
 			
@@ -117,7 +127,10 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			var that = this;
 			setTimeout(function() {
 				that.sceneTwoLineCount++;
-				var value = noise.perlin2(that.sceneTwoLineCount / 10 + 0.2, that.sceneTwoLineCount / 10 + 0.5);
+				var value = noise.perlin2(
+					that.sceneTwoLineCount / 12 + 0.2,
+					that.sceneTwoLineCount / 12 + 0.5
+				);
 				value *= 4;
 				that.sceneTwoNoise.push(
 					value 
@@ -143,8 +156,8 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			//var bottom = 0;
 
 			var z = -5;
-			var leftEdge = -7;
-			var rightEdge = 7;
+			var leftEdge = -4;
+			var rightEdge = 4;
 
 			var length = rightEdge - leftEdge;
 			
@@ -186,8 +199,12 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.workQueue.startWorld();
 			var texts = [
 				{
-					text: 'Infinite loading (and deleting)',
-					time: sceneThreeTime 
+					text: 'Infinite sized map won\'t fit into memory at once (duh!), load it dynamically',
+					time: sceneThreeTime / 4
+				},
+				{
+					text: 'the Marching Cubes algorithm <br> <br> - Creates renderable surfaces out volumetric data <br> <br> - The data can be anything from MRI scan results to sine function output like here. <br> <br> ',
+					time: sceneThreeTime * (3/4)
 				}
 			];
 			this.text.queueMultipleText(texts);
@@ -203,7 +220,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.sceneTwoLerpEndTime = this.sceneTwoLerpStartTime + sceneTwoLerpTime;
 			var mp = this.workQueue.middlePosition;
 			var scale = this.objCreator.scaleFactor;
-			this.sceneTwoLerpEndPosition = new pc.Vec3(-8 * scale, 35 * scale, mp[2]);
+			this.sceneTwoLerpEndPosition = new pc.Vec3(-8 * scale, 25 * scale, mp[2]);
 		},
 		sceneThreeUpdate: function() {
 		},
@@ -212,7 +229,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.workQueue.sampler = 'sin-noise-displace';
 			var texts = [
 				{
-					text: 'Noise displaced sin wave',
+					text: 'Sine wave displaced with noise<br><br> By displacing shapes with noise we can begin to create something more interesting <br> <br> - Think displacing a sphere with noise.',
 					time: sceneFourTime 
 				}
 			];
@@ -227,10 +244,10 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 		},
 		sceneFiveSetup: function() {
 			this.currentScene = 'Five';
-			this.workQueue.sampler = 'alien';
+			this.workQueue.sampler = 'perlin';
 			var texts = [
 				{
-					text: 'Simplex noise',
+					text: 'Perlin noise <br><br> - One solution for generating coherent noise in 3 dimensions <br> <br> - Often used for procedural textures in games and animated movies (originally made for Disney\'s Tron from 1982) <br> <br> ',
 					time: sceneFiveTime 
 				}
 			];
@@ -244,20 +261,20 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 		sceneFiveUpdate: function() {
 		},
 		sceneSixSetup: function() {
+			this.camera.script.first_person_camera.moveForwardLock = false;
+			this.camera.script.first_person_camera.mouseLook = true;
 			this.currentScene = 'Six';
 			this.workQueue.sampler = 'perlin';
 			var texts = [
 				{
-					text: 'Perlin noise',
+					text: 'By combining displacement and 3d noise we already have clouds or whatever plus a ground level with tunnels in it <br> <br> I have a bit better looking version with bigger draw distances etc. where you can fly around freely, come ask for a link if you want to try it out yourself',
 					time: sceneSixTime 
 				}
 			];
 			this.text.queueMultipleText(texts);
 
-			var that = this;
+			//var that = this;
 			setTimeout(function() {
-				that.camera.script.first_person_camera.moveForwardLock = false;
-				that.camera.script.first_person_camera.mouseLook = true;
 			}, sceneSixTime);
 		},
 		sceneSixUpdate: function() {

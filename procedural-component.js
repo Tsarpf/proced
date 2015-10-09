@@ -111,7 +111,7 @@ pc.script.create('procedural', function (app) {
 				node = new pc.GraphNode(),
 				//material = new pc.BasicMaterial();
 				material = new pc.PhongMaterial();
-			material.cull = 0;
+			//material.cull = 0;
 			//material.opacity = 0.5;
 			//material.vertexColors = true;
 			var meshInstance = new pc.MeshInstance(node, mesh, material);
@@ -230,6 +230,11 @@ pc.script.create('procedural', function (app) {
 					y / 20 + dataStep.y,
 					z / 20 + dataStep.z
 				);
+				value += noise.perlin3(
+					x / 10 + dataStep.x,
+					y / 10 + dataStep.y,
+					z / 10 + dataStep.z
+				) / 5;
 				if(y < 0) {
 					value += 1;
 				}

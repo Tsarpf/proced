@@ -11,7 +11,7 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 
 	CreatorObject.prototype = {
 		initialize: function () {
-			noise.seed(5);
+			noise.seed(10);
 		},
 		chunkSizeX: 8,
 		chunkSizeY: 8,
