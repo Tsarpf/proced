@@ -29,55 +29,23 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			objCreator = this.entity.script.objcreator;
 			camera = app.root.findByName('Camera');
 
-			//var t0 = performance.now();
-			/*
-			for(var x = 1; x < size - 1; x++) {
-				for(var y = 1; y < size - 1; y++) {
-					for(var z = 1; z < size - 1; z++) {
-						chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true);
-					}
-				}
-			}
-			*/
-
-			/*
+		},
+		loadWorld: function(sampler) {
 			for(var x = 0; x < size; x++) {
 				for(var y = 0; y < size; y++) {
 					for(var z = 0; z < size; z++) {
-						chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true);
+						var closure = function(x,y,z) {
+							return function() {
+								chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true, sampler);
+							};
+						};
+						closure(x,y,z)();
+						//requestAnimationFrame(closure(x,y,z), 0);
 					}
 				}
 			}
-			*/
-
-			/*
-			x = 0;
-			for(y = 0; y < size; y++) {
-				for(z = 0; z < size; z++) {
-					chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], false);
-				}
-			}
-
-			y = 0;
-			for(x = 0; x < size; x++) {
-				for(z = 0; z < size; z++) {
-					chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], false);
-				}
-			}
-
-			z = 0;
-			for(x = 0; x < size; x++) {
-				for(y = 0; y < size; y++) {
-					chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], false);
-				}
-			}
-			*/
-			//objCreator.addNewEntity([0,0,0], true);
-			//var t1 = performance.now();
-			/*
-			console.log('time spent initializing: %d', t1 - t0);
-
-			//Place camera in the middle of the initial world
+		},
+		startWorld: function() {
 			var pos = [
 				size / 2 * objCreator.chunkSizeX * objCreator.scaleFactor,
 				size / 2 * objCreator.chunkSizeY * objCreator.scaleFactor,
@@ -86,7 +54,6 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			camera.script.first_person_camera.setPosition(pos);
 			this.initializeZones();
 			this.initializeQueue();
-			*/
 		},
 		vecEqual: function(fst, snd) {
 			return fst.x === snd.x && fst.y === snd.y && fst.z === snd.z;	
@@ -244,6 +211,5 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 		return x + size * (y + size * z);
 	}
 
-	//Do nothing specific for the tile the player is in
 	return WorkQueue;
 });

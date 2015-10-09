@@ -1,27 +1,34 @@
-/* global noise:false */
+/* global noise:false, PROCED:false */
 pc.script.create('demo', function (app) { //context / app can be taken as argument
 	var Demo = function (entity) {
 		this.entity = entity;
 	};
 
+	var sceneOneTime = 30000 * 1;
+	var sceneTwoTime = 30000 * 1;
+	//var sceneThreeTime = 1000 * 5;
 	Demo.prototype = {
 		initialize: function() {
 			this.camera = app.root.findByName('Camera');
 
 			this.text = this.entity.script.ui;	
 			this.objCreator = this.entity.script.objcreator;
+			this.workQueue = this.entity.script.workQueue;
 			//this.objCreator.addNewEntity([0,0,0], true);
 			//
 			var texts = [
 				{
-					text: 'Random noise',
-					time: 10000 
+					text: 'Random noise function given two inputs <br><br> - Little change between input values -> difference between the output values is random <br><br> - Big change between input values -> difference still random',
+					time: sceneOneTime 
 				},
 				{
-					text: 'Coherent noise',
-					time: 30000 
+					text: 'Coherent noise function with two inputs <br><br> - Little change between input values -> little change between results <br><br> - Big change in input to function -> difference random',
+					time: sceneTwoTime 
 				}
 			];
+
+			this.workQueue.loadWorld('sin');
+
 			this.text.queueMultipleText(texts);
 			
 			this.sceneOneSetup();
@@ -36,7 +43,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			var that = this;
 			setTimeout(function() {
 				that.sceneTwoSetup();
-			}, 1000 * 10); // 30 seconds
+			}, sceneOneTime); 
 		},
 		sceneOneLineCount: 0,
 		sceneOneNoise: [],
@@ -59,9 +66,9 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			//var max = 2;
 			//var bottom = 0;
 
-			var x = 5;
-			var leftEdge = -5;
-			var rightEdge = 5;
+			var z = -5;
+			var leftEdge = -7;
+			var rightEdge = 7;
 
 			var length = rightEdge - leftEdge;
 			
@@ -77,23 +84,11 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 				left = leftEdge + i * segmentLength;
 				right = leftEdge + i * segmentLength + segmentLength;
 
-				start = new pc.Vec3(x, this.sceneOneNoise[i - 1], left);
-				end = new pc.Vec3(x, this.sceneOneNoise[i], right);
+				start = new pc.Vec3(left, this.sceneOneNoise[i - 1], z);
+				end = new pc.Vec3(right, this.sceneOneNoise[i], z);
 
 				app.renderLine(start, end, color);
 			}
-
-			start = new pc.Vec3(5,2,-5);
-			end = new pc.Vec3(5,2,5);
-			color = new pc.Color(1,1,1);
-			app.renderLine(start, end, color);
-
-			start = new pc.Vec3(5,-2,-5);
-			end = new pc.Vec3(5,-2,5);
-			color = new pc.Color(1,1,1);
-			app.renderLine(start, end, color);
-
-			//sceneOneFrameCount++;
 		},
 		sceneTwoSetup: function() {
 			this.currentScene = 'Two';
@@ -102,17 +97,20 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.sceneTwoAddLine();
 			var that = this;
 			setTimeout(function() {
-				that.sceneThreSetup();
-			}, 1000 * 30); // 30 seconds
+				that.sceneThreeSetup();
+			}, sceneTwoTime); // 30 seconds
+			//setTimeout(function() {
+			//that.sceneThreePreSetup();
+			//}, 1000 * 15);
 		},
 		sceneTwoAddLine: function() {
 			var that = this;
 			setTimeout(function() {
 				that.sceneTwoLineCount++;
-				var value = noise.perlin2(0, that.sceneTwoLineCount / 10 + 0.1);
+				var value = noise.perlin2(that.sceneTwoLineCount / 10 + 0.2, that.sceneTwoLineCount / 10 + 0.5);
 				value *= 4;
 				that.sceneTwoNoise.push(
-					value //plus one because the noise is from -1 to 1 
+					value 
 				);
 				if(that.currentScene === 'Two') {
 					that.sceneTwoAddLine();
@@ -126,9 +124,9 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			//var max = 2;
 			//var bottom = 0;
 
-			var x = 5;
-			var leftEdge = -5;
-			var rightEdge = 5;
+			var z = -5;
+			var leftEdge = -7;
+			var rightEdge = 7;
 
 			var length = rightEdge - leftEdge;
 			
@@ -144,23 +142,48 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 				left = leftEdge + i * segmentLength;
 				right = leftEdge + i * segmentLength + segmentLength;
 
-				start = new pc.Vec3(x, this.sceneTwoNoise[i - 1], left);
-				end = new pc.Vec3(x, this.sceneTwoNoise[i], right);
+				start = new pc.Vec3(left, this.sceneTwoNoise[i - 1], z);
+				end = new pc.Vec3(right, this.sceneTwoNoise[i], z);
 
 				app.renderLine(start, end, color);
 			}
+		},
+		sceneThreeSetup: function() {
+			//this.workQueue.startWorld();
+			//this.camera.moveForwardLock = true;
 
-			start = new pc.Vec3(5,2,-5);
-			end = new pc.Vec3(5,2,5);
-			color = new pc.Color(1,1,1);
-			app.renderLine(start, end, color);
+			this.objCreator.chunkSizeX = 8,
+			this.objCreator.chunkSizeY = 8,
+			this.objCreator.chunkSizeZ = 8,
+			this.objCreator.scaleFactor = 32;
 
-			start = new pc.Vec3(5,-2,-5);
-			end = new pc.Vec3(5,-2,5);
-			color = new pc.Color(1,1,1);
-			app.renderLine(start, end, color);
+		},
+		sceneThreePreSetup: function() {
+			//this.workQueue.loadWorld('sin');
+		},
+		oldPosX: 0,
+		oldPosY: 0,
+		oldPosZ: 0,
+		first: true,
+		wrappingArray: PROCED.wrappingArray(7),
+		sceneThreeUpdate: function() {
+			var cameraPos = this.camera.getPosition();
+			var xChunkPos = Math.floor(cameraPos.x / this.objCreator.chunkSizeX / this.objCreator.scaleFactor);
+			var yChunkPos = Math.floor(cameraPos.y / this.objCreator.chunkSizeY / this.objCreator.scaleFactor);
+			var zChunkPos = Math.floor(cameraPos.z / this.objCreator.chunkSizeZ / this.objCreator.scaleFactor);
+			if(this.first) {
+				this.oldPosX = xChunkPos;
+				this.oldPosY = yChunkPos;
+				this.oldPosZ = zChunkPos;
+				this.first = false;
+				return;
+			}
 
-			//sceneTwoFrameCount++;
+			if(xChunkPos > this.oldPosX) {
+				this.oldPosX = xChunkPos;
+				console.log('x plus');
+				this.wrappingArray.dirXPlus();
+			}
 		}
 	};
 	return Demo;

@@ -8,11 +8,13 @@ pc.script.create('procedural', function (app) {
 		this.entity = entity;
 	};
 
+/*
 	var chunkOffset = {
 		x: 0,
 		y: 0,
 		z: 0
 	};
+	*/
 	ProceduralObject.prototype = {
 		initialize: function () {
 			if(!this.chunkSize) {
@@ -22,9 +24,12 @@ pc.script.create('procedural', function (app) {
 			height = this.chunkSize.y;
 			depth = this.chunkSize.z;
 			//chunkPos = this.chunkPos;
-			chunkOffset.x = this.chunkPos.x * (this.width - 1);
-			chunkOffset.y = this.chunkPos.y * (height - 1);
-			chunkOffset.z = this.chunkPos.z * (depth - 1);
+			this.chunkOffset = {
+				x: this.chunkPos.x * (this.width - 1),
+				y: this.chunkPos.y * (height - 1),
+				z: this.chunkPos.z * (depth - 1)
+			};
+
 			scaleFactor = this.scaleFactor;
 			isolevel = 0.5;
 			dataStep = {
@@ -32,6 +37,16 @@ pc.script.create('procedural', function (app) {
 				y: 1 / height,
 				z: 1 / depth
 			};
+
+			switch(this.sampler) {
+			case 'alien':
+				this.samplerFunction = this.getNoiseVal;
+				break;
+			case 'sin':
+				this.samplerFunction = this.getSinVal;
+				break;
+			}
+
 			this.draw();
 		},
 		state: 'loading',
@@ -98,7 +113,7 @@ pc.script.create('procedural', function (app) {
 				node = new pc.GraphNode(),
 				//material = new pc.BasicMaterial();
 				material = new pc.PhongMaterial();
-			//material.cull = 0;
+			material.cull = 0;
 			//material.vertexColors = true;
 			var meshInstance = new pc.MeshInstance(node, mesh, material);
 			var model = new pc.Model();
@@ -113,7 +128,9 @@ pc.script.create('procedural', function (app) {
 			}
 		},
 		getBuffers: function() {
-			var sampler = this.getNoiseVal;
+			//var sampler = this.getNoiseVal;
+			var sampler = this.samplerFunction;
+			sampler = sampler.bind(this);
 			this.noiseLookup = [];
 			//var sampler = getSlopeVal;
 			//var sampler = getFlatVal;
@@ -202,9 +219,9 @@ pc.script.create('procedural', function (app) {
 		noiseLookup: [],
 		getNoiseVal: function(x, y, z) {
 			var idx = this.getNoiseIdx(x,y,z);
-			x += chunkOffset.x;
-			y += chunkOffset.y;
-			z += chunkOffset.z;
+			x += this.chunkOffset.x;
+			y += this.chunkOffset.y;
+			z += this.chunkOffset.z;
 
 			var value;
 			var lookupVal = this.noiseLookup[idx];
@@ -229,9 +246,18 @@ pc.script.create('procedural', function (app) {
 			}
 			return value;
 		},
+		getSinVal: function(x, y, z) {
+			x += this.chunkOffset.x;
+			y += this.chunkOffset.y;
+			z += this.chunkOffset.z;
+			if(y < Math.sin(x / 10) * 5) {
+				return 1;
+			}
+			else
+				return 0;
+		},
 		getCubeAtPos: function(x, y, z, sampler) {
 			var cube = [];
-			sampler = sampler.bind(this);
 			cube[0] = {
 				pos: {
 					x: x,

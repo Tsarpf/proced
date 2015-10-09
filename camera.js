@@ -19,6 +19,7 @@ pc.script.create('first_person_camera', function (app) {
 
 	};
 
+
 	FirstPersonCamera.prototype = {
 		update: function (dt) {
 			/*
@@ -33,8 +34,10 @@ pc.script.create('first_person_camera', function (app) {
 			// Update the camera's orientation
 			this.entity.setEulerAngles(this.ex, this.ey, 0);
 
-			// Update the camera's position
-			if (app.keyboard.isPressed(pc.KEY_UP)) {
+			if (this.moveForwardLock) {
+				this.entity.translateLocal(0, 0, -SPEED*dt);
+			}
+			else if (app.keyboard.isPressed(pc.KEY_UP)) {
 				this.entity.translateLocal(0, 0, -SPEED*dt);
 			} else if (app.keyboard.isPressed(pc.KEY_DOWN)) {
 				this.entity.translateLocal(0, 0, SPEED*dt);
@@ -47,6 +50,9 @@ pc.script.create('first_person_camera', function (app) {
 			}
 		},
 
+
+
+		moveForwardLock: false,
 		/*
 		onMouseMove: function (event) {
 			// Update the current Euler angles, clamp the pitch.
