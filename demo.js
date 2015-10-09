@@ -203,7 +203,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 					time: sceneThreeTime / 4
 				},
 				{
-					text: 'the Marching Cubes algorithm <br> <br> - Creates renderable surfaces out volumetric data <br> <br> - The data can be anything from MRI scan results to sine function output like here. <br> <br> ',
+					text: 'the Marching Cubes algorithm <br> <br> - Creates renderable surfaces out of volumetric data <br> <br> - The data can be anything from MRI scan results to a sine wave like here. <br> <br> ',
 					time: sceneThreeTime * (3/4)
 				}
 			];
@@ -229,7 +229,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.workQueue.sampler = 'sin-noise-displace';
 			var texts = [
 				{
-					text: 'Sine wave displaced with noise<br><br> By displacing shapes with noise we can begin to create something more interesting <br> <br> - Think displacing a sphere with noise.',
+					text: 'Sine wave displaced with noise <br> <br> - Follows the general direction of the sine wave, but has more interesting features  <br> <br> - Think displacing a sphere with noise. Rocks? Planets? You name it',
 					time: sceneFourTime 
 				}
 			];
@@ -247,7 +247,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.workQueue.sampler = 'perlin';
 			var texts = [
 				{
-					text: 'Perlin noise <br><br> - One solution for generating coherent noise in 3 dimensions <br> <br> - Often used for procedural textures in games and animated movies (originally made for Disney\'s Tron from 1982) <br> <br> ',
+					text: 'Perlin noise <br><br> - One algorithm for generating coherent noise in 3 dimensions <br> <br> - Often used for procedural textures in games and animated movies (was originally used in Disney\'s Tron from 1982) <br> <br> ',
 					time: sceneFiveTime 
 				}
 			];
@@ -267,7 +267,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.workQueue.sampler = 'perlin';
 			var texts = [
 				{
-					text: 'By combining displacement and 3d noise we already have clouds or whatever plus a ground level with tunnels in it <br> <br> I have a bit better looking version with bigger draw distances etc. where you can fly around freely, come ask for a link if you want to try it out yourself',
+					text: 'By combining displacement and 3d noise we already have clouds or whatever plus a ground level with tunnels in it <br> <br> I have a bit better looking version with bigger draw distances etc. where you can fly around freely, come ask for a link if you want to try it out yourself <br> <br> P.S. all this runs in the browser!',
 					time: sceneSixTime 
 				}
 			];
