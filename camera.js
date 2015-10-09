@@ -35,7 +35,7 @@ pc.script.create('first_person_camera', function (app) {
 			//this.entity.setEulerAngles(this.ex, this.ey, 0);
 
 			if (this.moveForwardLock) {
-				this.entity.translateLocal(0, 0, -SPEED*dt);
+				this.entity.translate(SPEED*dt, 0, 0);
 			}
 			else if (app.keyboard.isPressed(pc.KEY_UP)) {
 				this.entity.translateLocal(0, 0, -SPEED*dt);

@@ -74,7 +74,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			 * DISABLED AT FIRST BECAUSE OF DEMO STUFF!
 			 *
 			 */
-			if(!updateEnabled) {
+			if(!this.updateEnabled) {
 				return;
 			}
 

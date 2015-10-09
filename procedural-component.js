@@ -114,6 +114,7 @@ pc.script.create('procedural', function (app) {
 				//material = new pc.BasicMaterial();
 				material = new pc.PhongMaterial();
 			material.cull = 0;
+			//material.opacity = 0.5;
 			//material.vertexColors = true;
 			var meshInstance = new pc.MeshInstance(node, mesh, material);
 			var model = new pc.Model();
@@ -248,7 +249,7 @@ pc.script.create('procedural', function (app) {
 		},
 		getSinVal: function(x, y, z) {
 			x += this.chunkOffset.x;
-			y += this.chunkOffset.y;
+			y += this.chunkOffset.y - 5;
 			z += this.chunkOffset.z;
 			if(y < Math.sin(x / 10) * 5) {
 				return 1;

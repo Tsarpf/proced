@@ -6,6 +6,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 
 	var sceneOneTime = 1000 * 1;
 	var sceneTwoTime = 1000 * 6;
+	var sceneThreeTime = 1000 * 30;
 	var sceneTwoLerpTime = 5000;
 	//var sceneThreeTime = 1000 * 5;
 	Demo.prototype = {
@@ -169,7 +170,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 				var val = pc.math.lerp(this.sceneTwoLerpStartVal, this.sceneTwoLerpEndVal, lerpX);
 				var lerpVec = new pc.Vec3();
 				lerpVec.lerp(this.sceneTwoLerpStartPosition, this.sceneTwoLerpEndPosition, lerpX);
-				this.camera.script.first_person_camera.setEulerAngles(0, -val, 0);
+				this.camera.script.first_person_camera.setEulerAngles(-val / 4, -val, 0);
 				this.camera.script.first_person_camera.setPosition([lerpVec.x, lerpVec.y, lerpVec.z]);
 				if(now > this.sceneTwoLerpEndTime) {
 					this.sceneTwoLerping = false;
@@ -180,6 +181,14 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			console.log('syys');
 			this.currentScene = 'Three';
 			this.workQueue.startWorld();
+			var texts = [
+				{
+					text: 'Sin wave',
+					time: sceneThreeTime 
+				}
+			];
+			this.text.queueMultipleText(texts);
+
 
 
 		},
@@ -188,7 +197,8 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.sceneTwoLerpStartTime = performance.now();
 			this.sceneTwoLerpEndTime = this.sceneTwoLerpStartTime + sceneTwoLerpTime;
 			var mp = this.workQueue.middlePosition;
-			this.sceneTwoLerpEndPosition = new pc.Vec3(-30, 20, mp[2]);
+			var scale = this.objCreator.scaleFactor;
+			this.sceneTwoLerpEndPosition = new pc.Vec3(-8 * scale, 12.5 * scale, mp[2]);
 		},
 		oldPosX: 0,
 		oldPosY: 0,
