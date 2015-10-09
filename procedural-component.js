@@ -7,14 +7,6 @@ pc.script.create('procedural', function (app) {
 	var ProceduralObject = function (entity) {
 		this.entity = entity;
 	};
-
-/*
-	var chunkOffset = {
-		x: 0,
-		y: 0,
-		z: 0
-	};
-	*/
 	ProceduralObject.prototype = {
 		initialize: function () {
 			if(!this.chunkSize) {
@@ -42,8 +34,14 @@ pc.script.create('procedural', function (app) {
 			case 'alien':
 				this.samplerFunction = this.getNoiseVal;
 				break;
+			case 'perlin':
+				this.samplerFunction = this.getNoiseVal;
+				break;
 			case 'sin':
 				this.samplerFunction = this.getSinVal;
+				break;
+			case 'sin-noise-displace':
+				this.samplerFunction = this.getNoiseDisplacedSinVal;
 				break;
 			}
 
@@ -218,6 +216,30 @@ pc.script.create('procedural', function (app) {
 			return x + this.width * (y + height * z);
 		},
 		noiseLookup: [],
+		getPerlinVal: function(x, y, z) {
+			var idx = this.getNoiseIdx(x,y,z);
+			x += this.chunkOffset.x;
+			y += this.chunkOffset.y;
+			z += this.chunkOffset.z;
+
+			var value;
+			var lookupVal = this.noiseLookup[idx];
+			if(lookupVal === undefined) {
+				value = noise.perlin3(
+					x / 20 + dataStep.x,
+					y / 20 + dataStep.y,
+					z / 20 + dataStep.z
+				);
+				if(y < 0) {
+					value += 1;
+				}
+				this.noiseLookup[idx] = value;
+			}
+			else {
+				value = lookupVal;
+			}
+			return value;
+		},
 		getNoiseVal: function(x, y, z) {
 			var idx = this.getNoiseIdx(x,y,z);
 			x += this.chunkOffset.x;
@@ -228,15 +250,10 @@ pc.script.create('procedural', function (app) {
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
 				value = noise.simplex3(
-					x / 10 + dataStep.x,
-					y / 10 + dataStep.y,
-					z / 10 + dataStep.z
+					x / 20 + dataStep.x,
+					y / 20 + dataStep.y,
+					z / 20 + dataStep.z
 				);
-				value += noise.simplex3(
-					x / 10 + dataStep.x,
-					y / 10 + dataStep.y,
-					z / 10 + dataStep.z
-				) / 10;
 				if(y < 0) {
 					value += 1;
 				}
@@ -249,9 +266,27 @@ pc.script.create('procedural', function (app) {
 		},
 		getSinVal: function(x, y, z) {
 			x += this.chunkOffset.x;
+			y += this.chunkOffset.y - 10;
+			z += this.chunkOffset.z;
+			var edge = Math.sin(x / 10) * 5
+			if(y < edge) {
+				return 1;
+			}
+			else
+				return 0;
+		},
+		getNoiseDisplacedSinVal: function(x, y, z) {
+			x += this.chunkOffset.x;
 			y += this.chunkOffset.y - 5;
 			z += this.chunkOffset.z;
-			if(y < Math.sin(x / 10) * 5) {
+			var edge = Math.sin(x / 10) * 5;
+			edge += noise.simplex3(
+				x / 10 + dataStep.x,
+				y / 10 + dataStep.y,
+				z / 10 + dataStep.z
+			) * 3;
+
+			if(y < edge) {
 				return 1;
 			}
 			else

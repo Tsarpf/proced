@@ -28,18 +28,19 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			camera = app.root.findByName('Camera');
 
 		},
-		loadWorld: function(sampler) {
+		loadWorld: function() {
 			this.middlePosition = [
 				size / 2 * objCreator.chunkSizeX * objCreator.scaleFactor,
 				size / 2 * objCreator.chunkSizeY * objCreator.scaleFactor,
 				size / 2 * objCreator.chunkSizeZ * objCreator.scaleFactor
 			];
+			var that = this;
 			for(var x = 0; x < size; x++) {
 				for(var y = 0; y < size; y++) {
 					for(var z = 0; z < size; z++) {
 						var closure = function(x,y,z) {
 							return function() {
-								chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true, sampler);
+								chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true, that.sampler);
 							};
 						};
 						closure(x,y,z)();

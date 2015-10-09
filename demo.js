@@ -1,12 +1,15 @@
-/* global noise:false, PROCED:false */
+/* global noise:false*/
 pc.script.create('demo', function (app) { //context / app can be taken as argument
 	var Demo = function (entity) {
 		this.entity = entity;
 	};
 
 	var sceneOneTime = 1000 * 1;
-	var sceneTwoTime = 1000 * 6;
-	var sceneThreeTime = 1000 * 30;
+	var sceneTwoTime = 1000 * 5;
+	var sceneThreeTime = 1000 * 5;
+	var sceneFourTime = 1000 * 10;
+	var sceneFiveTime = 1000 * 20;
+	var sceneSixTime = 1000 * 10;
 	var sceneTwoLerpTime = 5000;
 	//var sceneThreeTime = 1000 * 5;
 	Demo.prototype = {
@@ -32,7 +35,7 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.objCreator.chunkSizeX = 8,
 			this.objCreator.chunkSizeY = 8,
 			this.objCreator.chunkSizeZ = 8,
-			this.objCreator.scaleFactor = 4;
+			this.objCreator.scaleFactor = 16;
 
 			this.workQueue.loadWorld('sin');
 
@@ -183,14 +186,16 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.workQueue.startWorld();
 			var texts = [
 				{
-					text: 'Sin wave',
+					text: 'Infinite loading (and deleting)',
 					time: sceneThreeTime 
 				}
 			];
 			this.text.queueMultipleText(texts);
 
-
-
+			var that = this;
+			setTimeout(function() {
+				that.sceneFourSetup();
+			}, sceneThreeTime);
 		},
 		sceneThreePreSetup: function() {
 			this.sceneTwoLerping = true;
@@ -198,40 +203,64 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			this.sceneTwoLerpEndTime = this.sceneTwoLerpStartTime + sceneTwoLerpTime;
 			var mp = this.workQueue.middlePosition;
 			var scale = this.objCreator.scaleFactor;
-			this.sceneTwoLerpEndPosition = new pc.Vec3(-8 * scale, 12.5 * scale, mp[2]);
+			this.sceneTwoLerpEndPosition = new pc.Vec3(-8 * scale, 35 * scale, mp[2]);
 		},
-		oldPosX: 0,
-		oldPosY: 0,
-		oldPosZ: 0,
-		first: true,
-		//wrappingArray: PROCED.wrappingArray(7),
-		sceneThreeRunInfinite: false,
 		sceneThreeUpdate: function() {
-			var cameraPos = this.camera.getPosition();
-			var xChunkPos = Math.floor(cameraPos.x / this.objCreator.chunkSizeX / this.objCreator.scaleFactor);
-			var yChunkPos = Math.floor(cameraPos.y / this.objCreator.chunkSizeY / this.objCreator.scaleFactor);
-			var zChunkPos = Math.floor(cameraPos.z / this.objCreator.chunkSizeZ / this.objCreator.scaleFactor);
-			if(this.first) {
-				this.oldPosX = xChunkPos;
-				this.oldPosY = yChunkPos;
-				this.oldPosZ = zChunkPos;
-				return;
-			}
+		},
+		sceneFourSetup: function() {
+			this.currentScene = 'Four';
+			this.workQueue.sampler = 'sin-noise-displace';
+			var texts = [
+				{
+					text: 'Noise displaced sin wave',
+					time: sceneFourTime 
+				}
+			];
+			this.text.queueMultipleText(texts);
 
-			console.log(xChunkPos);
-			/*
-			if(xChunkPos >= 0) {
-				this.sceneThreeRunInfinite = true;
-			}
-			*/
+			var that = this;
+			setTimeout(function() {
+				that.sceneFiveSetup();
+			}, sceneFourTime);
+		},
+		sceneFourUpdate: function() {
+		},
+		sceneFiveSetup: function() {
+			this.currentScene = 'Five';
+			this.workQueue.sampler = 'alien';
+			var texts = [
+				{
+					text: 'Simplex noise',
+					time: sceneFiveTime 
+				}
+			];
+			this.text.queueMultipleText(texts);
 
-			/*
-			if(xChunkPos > this.oldPosX) {
-				this.oldPosX = xChunkPos;
-				console.log('x plus');
-				//this.wrappingArray.dirXPlus();
-			}
-			*/
+			var that = this;
+			setTimeout(function() {
+				that.sceneSixSetup();
+			}, sceneFiveTime);
+		},
+		sceneFiveUpdate: function() {
+		},
+		sceneSixSetup: function() {
+			this.currentScene = 'Six';
+			this.workQueue.sampler = 'perlin';
+			var texts = [
+				{
+					text: 'Perlin noise',
+					time: sceneSixTime 
+				}
+			];
+			this.text.queueMultipleText(texts);
+
+			var that = this;
+			setTimeout(function() {
+				that.camera.script.first_person_camera.moveForwardLock = false;
+				that.camera.script.first_person_camera.mouseLook = true;
+			}, sceneSixTime);
+		},
+		sceneSixUpdate: function() {
 		}
 	};
 	return Demo;

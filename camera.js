@@ -21,18 +21,12 @@ pc.script.create('first_person_camera', function (app) {
 
 
 	FirstPersonCamera.prototype = {
+		mouseLook: false,
+		moveForwardLock: false,
 		update: function (dt) {
-			/*
-			app.renderLine(
-				new pc.Vec3(camPos.x - 10, camPos.y, camPos.z),
-				new pc.Vec3(camPos.x - 10, camPos.y, camPos.z + 5),
-				new pc.Color(1,1,1)
-			);
-			*/
-
-
-			// Update the camera's orientation
-			//this.entity.setEulerAngles(this.ex, this.ey, 0);
+			if(this.mouseLook) {
+				this.entity.setEulerAngles(this.ex, this.ey, 0);
+			}
 
 			if (this.moveForwardLock) {
 				this.entity.translate(SPEED*dt, 0, 0);
@@ -50,17 +44,12 @@ pc.script.create('first_person_camera', function (app) {
 			}
 		},
 
-
-
-		moveForwardLock: false,
-		/*
 		onMouseMove: function (event) {
 			// Update the current Euler angles, clamp the pitch.
 			this.ex -= event.dy / 5;
 			this.ex = pc.math.clamp(this.ex, -90, 90);
 			this.ey -= event.dx / 5;
 		},
-		*/
 
 		onMouseDown: function () { //event is given as arg
 			// When the mouse button is clicked try and capture the pointer
@@ -71,8 +60,6 @@ pc.script.create('first_person_camera', function (app) {
 
 		setPosition: function(position) {
 			this.entity.setPosition(position[0], position[1], position[2]);
-			//position = this.entity.getPosition();
-			//camPos = new pc.Vec3(position[0], position[1], position[2]);
 		},
 
 		setEulerAngles: function(x, y, z) {
