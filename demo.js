@@ -4,8 +4,9 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 		this.entity = entity;
 	};
 
-	var sceneOneTime = 30000 * 1;
-	var sceneTwoTime = 30000 * 1;
+	var sceneOneTime = 1000 * 1;
+	var sceneTwoTime = 1000 * 6;
+	var sceneTwoLerpTime = 5000;
 	//var sceneThreeTime = 1000 * 5;
 	Demo.prototype = {
 		initialize: function() {
@@ -26,6 +27,11 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 					time: sceneTwoTime 
 				}
 			];
+
+			this.objCreator.chunkSizeX = 8,
+			this.objCreator.chunkSizeY = 8,
+			this.objCreator.chunkSizeZ = 8,
+			this.objCreator.scaleFactor = 4;
 
 			this.workQueue.loadWorld('sin');
 
@@ -62,7 +68,6 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			}, 100);
 		},
 		sceneOneUpdate: function() {
-			//debugger;
 			//var max = 2;
 			//var bottom = 0;
 
@@ -98,10 +103,11 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 			var that = this;
 			setTimeout(function() {
 				that.sceneThreeSetup();
-			}, sceneTwoTime); // 30 seconds
-			//setTimeout(function() {
-			//that.sceneThreePreSetup();
-			//}, 1000 * 15);
+				that.camera.script.first_person_camera.moveForwardLock = true;
+			}, sceneTwoTime); 
+			setTimeout(function() {
+				that.sceneThreePreSetup();
+			}, sceneTwoTime - sceneTwoLerpTime);
 		},
 		sceneTwoAddLine: function() {
 			var that = this;
@@ -119,8 +125,16 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 		},
 		sceneTwoLineCount: 0,
 		sceneTwoNoise: [],
+		sceneTwoLerpAlpha: 0,
+		sceneTwoLerping: false,
+		sceneTwoLerpStartTime: -1,
+		sceneTwoLerpEndTime: -1,
+		sceneTwoLerpStartVal: 0,
+		sceneTwoLerpEndVal: 90,
+
+		sceneTwoLerpStartPosition: new pc.Vec3(0,0,0),
+		sceneTwoLerpEndPosition: null,
 		sceneTwoUpdate: function() {
-			//debugger;
 			//var max = 2;
 			//var bottom = 0;
 
@@ -147,25 +161,41 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 
 				app.renderLine(start, end, color);
 			}
+
+			if(this.sceneTwoLerping) {
+				var now = performance.now();
+				var lerpX = (now - this.sceneTwoLerpStartTime) / sceneTwoLerpTime;
+				//var val = pc.math.smootherstep(this.sceneTwoLerpStartVal, this.sceneTwoLerpEndVal, this.
+				var val = pc.math.lerp(this.sceneTwoLerpStartVal, this.sceneTwoLerpEndVal, lerpX);
+				var lerpVec = new pc.Vec3();
+				lerpVec.lerp(this.sceneTwoLerpStartPosition, this.sceneTwoLerpEndPosition, lerpX);
+				this.camera.script.first_person_camera.setEulerAngles(0, -val, 0);
+				this.camera.script.first_person_camera.setPosition([lerpVec.x, lerpVec.y, lerpVec.z]);
+				if(now > this.sceneTwoLerpEndTime) {
+					this.sceneTwoLerping = false;
+				}
+			}
 		},
 		sceneThreeSetup: function() {
-			//this.workQueue.startWorld();
-			//this.camera.moveForwardLock = true;
+			console.log('syys');
+			this.currentScene = 'Three';
+			this.workQueue.startWorld();
 
-			this.objCreator.chunkSizeX = 8,
-			this.objCreator.chunkSizeY = 8,
-			this.objCreator.chunkSizeZ = 8,
-			this.objCreator.scaleFactor = 32;
 
 		},
 		sceneThreePreSetup: function() {
-			//this.workQueue.loadWorld('sin');
+			this.sceneTwoLerping = true;
+			this.sceneTwoLerpStartTime = performance.now();
+			this.sceneTwoLerpEndTime = this.sceneTwoLerpStartTime + sceneTwoLerpTime;
+			var mp = this.workQueue.middlePosition;
+			this.sceneTwoLerpEndPosition = new pc.Vec3(-30, 20, mp[2]);
 		},
 		oldPosX: 0,
 		oldPosY: 0,
 		oldPosZ: 0,
 		first: true,
-		wrappingArray: PROCED.wrappingArray(7),
+		//wrappingArray: PROCED.wrappingArray(7),
+		sceneThreeRunInfinite: false,
 		sceneThreeUpdate: function() {
 			var cameraPos = this.camera.getPosition();
 			var xChunkPos = Math.floor(cameraPos.x / this.objCreator.chunkSizeX / this.objCreator.scaleFactor);
@@ -175,15 +205,23 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 				this.oldPosX = xChunkPos;
 				this.oldPosY = yChunkPos;
 				this.oldPosZ = zChunkPos;
-				this.first = false;
 				return;
 			}
 
+			console.log(xChunkPos);
+			/*
+			if(xChunkPos >= 0) {
+				this.sceneThreeRunInfinite = true;
+			}
+			*/
+
+			/*
 			if(xChunkPos > this.oldPosX) {
 				this.oldPosX = xChunkPos;
 				console.log('x plus');
-				this.wrappingArray.dirXPlus();
+				//this.wrappingArray.dirXPlus();
 			}
+			*/
 		}
 	};
 	return Demo;

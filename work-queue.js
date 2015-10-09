@@ -15,8 +15,6 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 	var oldPosX, oldPosY, oldPosZ;
 	var first = true;
 
-	var updateEnabled = false;
-
 	var queue;
 
 	var WorkQueue = function (entity) {
@@ -31,6 +29,11 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 
 		},
 		loadWorld: function(sampler) {
+			this.middlePosition = [
+				size / 2 * objCreator.chunkSizeX * objCreator.scaleFactor,
+				size / 2 * objCreator.chunkSizeY * objCreator.scaleFactor,
+				size / 2 * objCreator.chunkSizeZ * objCreator.scaleFactor
+			];
 			for(var x = 0; x < size; x++) {
 				for(var y = 0; y < size; y++) {
 					for(var z = 0; z < size; z++) {
@@ -45,13 +48,12 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 				}
 			}
 		},
+		middlePosition: null,
+		sampler: 'sin',
+		updateEnabled: false,
 		startWorld: function() {
-			var pos = [
-				size / 2 * objCreator.chunkSizeX * objCreator.scaleFactor,
-				size / 2 * objCreator.chunkSizeY * objCreator.scaleFactor,
-				size / 2 * objCreator.chunkSizeZ * objCreator.scaleFactor
-			];
-			camera.script.first_person_camera.setPosition(pos);
+			//camera.script.first_person_camera.setPosition(this.middlePos);
+			this.updateEnabled = true;
 			this.initializeZones();
 			this.initializeQueue();
 		},
@@ -69,7 +71,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 		update: function() {
 			/*
 			 *
-			 * DISABLED BECAUSE OF DEMO STUFF!
+			 * DISABLED AT FIRST BECAUSE OF DEMO STUFF!
 			 *
 			 */
 			if(!updateEnabled) {
@@ -186,7 +188,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 			else {
 				//console.log('draw new');
-				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true);
+				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true, this.sampler);
 			}
 
 			callback();
@@ -200,7 +202,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 			else {
 				requestAnimationFrame(function() {
-					chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], false);
+					chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], false, this.sampler);
 					callback();
 				});
 			}
