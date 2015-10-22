@@ -24,6 +24,9 @@ From here: https://github.com/caolan/async
  * This code was placed in the public domain by its original author,
  * Stefan Gustavson. You may use it as you see fit, but
  * attribution is appreciated.
+ * 
+#### camera.js
+From old PlayCanvas tutorials that have been removed from their site.
 
 #### Everything else (MIT)
 By me, use however you wish!
