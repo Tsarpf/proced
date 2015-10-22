@@ -1,5 +1,8 @@
 # proced
-procedural graphics stuff in javascript
+
+![screenshot](https://rabidproto.files.wordpress.com/2015/10/3516f2f284.jpg)
+
+procedural graphics stuff using marching cubes, javascript, playcanvas
 
 ### Flash talk 'slides' I made using only code in this repository
 
