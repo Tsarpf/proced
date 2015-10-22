@@ -25,5 +25,5 @@ From here: https://github.com/caolan/async
  * Stefan Gustavson. You may use it as you see fit, but
  * attribution is appreciated.
 
-#### everything else (MIT)
+#### Everything else (MIT)
 By me, use however you wish!
