@@ -130,66 +130,19 @@ pc.script.create('procedural', function (app) {
 			}
 		},
 		getBuffers: function() {
-			//var sampler = this.getNoiseVal;
 			var sampler = this.samplerFunction;
 			sampler = sampler.bind(this);
 			this.noiseLookup = [];
-			//var sampler = getSlopeVal;
-			//var sampler = getFlatVal;
 			var triangles = [];
 			var vertexLookup = [];
 			for(var z = 0; z < this.depth - 1; z++) {
 				for(var y = 0; y < this.height - 1; y++) {
 					for(var x = 0; x < this.width - 1; x++) {
 						var cube = this.getCubeAtPos(x,y,z, sampler);
-						var cubeTris = [];
-						PROCED.polygonize(cube, this.isolevel, cubeTris);
-
-						for(var i = 0; i < cubeTris.length; i+=9) {
-							var v1 = new pc.Vec3(
-								cubeTris[i + 3] - cubeTris[i + 0],
-								cubeTris[i + 4] - cubeTris[i + 1],
-								cubeTris[i + 5] - cubeTris[i + 2]
-							);
-							var v2 = new pc.Vec3(
-								cubeTris[i + 6] - cubeTris[i + 0],
-								cubeTris[i + 7] - cubeTris[i + 1],
-								cubeTris[i + 8] - cubeTris[i + 2]
-							);
-
-							var normal = new pc.Vec3().cross(v1, v2);
-							normal.normalize();
-							var area = v1.length() * v2.length() / 2;
-
-							var triangle = {
-								fst: [cubeTris[i + 0], cubeTris[i + 1], cubeTris[i + 2]],
-								snd: [cubeTris[i + 3], cubeTris[i + 4], cubeTris[i + 5]],
-								trd: [cubeTris[i + 6], cubeTris[i + 7], cubeTris[i + 8]]
-								/*
-								normal: normal,
-								area: area
-								*/
-							};
-							triangles.push(triangle);
-
-							//Add triangle normals for each vertex here
-							//so they can be used in the next pass when generating the actual vertex and index buffers
-							for(var j = i; j < i + 9; j+=3) {
-								var idx = getIdx(cubeTris[j], cubeTris[j + 1], cubeTris[j+2]);
-								if(!vertexLookup[idx]) {
-									vertexLookup[idx] = [{
-										normal: normal,
-										area: area
-									}];
-								}
-								else {
-									vertexLookup[idx].push({
-										normal: normal,
-										area: area
-									});
-								}
-							}
-						}
+						//var cubeTris = [];
+						//PROCED.polygonize(cube, this.isolevel, cubeTris);
+						//debugger;
+						PROCED.polygonize(cube, this.isolevel, triangles, getIdx, vertexLookup);
 					}
 				}
 			}

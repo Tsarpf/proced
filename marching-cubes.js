@@ -324,7 +324,7 @@ for(var i = 0; i < 12; i++) {
 		z: 0
 	});
 }
-PROCED.polygonize = function(grid, isolevel, triangles) {
+PROCED.polygonize = function(grid, isolevel, triangles, getIdx, vertexLookup) {
 	var cubeIndex = 0;
 	//var vertlist = [];
 
@@ -371,23 +371,55 @@ PROCED.polygonize = function(grid, isolevel, triangles) {
 	/* Create the triangle */
 	var ntriang = 0;
 	for (var i=0; getTriTableValue(cubeIndex, i) != -1; i+=3) {
-		var vert;
+		var vert1 = vertlist[getTriTableValue(cubeIndex, i)];
+		var vert2 = vertlist[getTriTableValue(cubeIndex, i + 2)];
+		var vert3 = vertlist[getTriTableValue(cubeIndex, i + 1)];
 
-		vert = vertlist[getTriTableValue(cubeIndex, i)];
-		triangles.push(vert.x, vert.y, vert.z);
+		var v1 = new pc.Vec3(
+			vert2.x - vert1.x,
+			vert2.y - vert1.y,
+			vert2.z - vert1.z
+		);
+		var v2 = new pc.Vec3(
+			vert3.x - vert1.x,
+			vert3.y - vert1.y,
+			vert3.z - vert1.z
+		);
 
-		vert = vertlist[getTriTableValue(cubeIndex, i + 2)];
-		triangles.push(vert.x, vert.y, vert.z);
+		var normal = new pc.Vec3().cross(v1, v2);
+		normal.normalize();
+		var area = v1.length() * v2.length() / 2;
 
-		vert = vertlist[getTriTableValue(cubeIndex, i + 1)];
-		triangles.push(vert.x, vert.y, vert.z);
+		var triangle = {
+			fst: [vert1.x, vert1.y, vert1.z],
+			snd: [vert2.x, vert2.y, vert2.z],
+			trd: [vert3.x, vert3.y, vert3.z]
+		};
+		triangles.push(triangle);
 
-
+		var idxs = [
+			getIdx(vert1.x, vert1.y, vert1.z),
+			getIdx(vert2.x, vert2.y, vert2.z),
+			getIdx(vert3.x, vert3.y, vert3.z)
+		];
+		for(var j = 0; j < idxs.length; j++) {
+			var idx = idxs[j];
+			if(!vertexLookup[idx]) {
+				vertexLookup[idx] = [{
+					normal: normal,
+					area: area
+				}];
+			}
+			else {
+				vertexLookup[idx].push({
+					normal: normal,
+					area: area
+				});
+			}
+		}
 		ntriang++;
 	}
-
 	return ntriang;
-
 };
 
 function getTriTableValue(i, j) {
@@ -399,4 +431,3 @@ function getTriTableValue(i, j) {
 	var val = triTable[16 * i + j];
 	return val;
 }
-
