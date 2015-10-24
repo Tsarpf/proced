@@ -324,8 +324,10 @@ for(var i = 0; i < 12; i++) {
 		z: 0
 	});
 }
-PROCED.polygonize = function(grid, isolevel, triangles, getIdx, vertexLookup, sampler, dataStep, vertexList, indexList, scaleFactor) {
+PROCED.polygonize = function(grid, isolevel, triangles, getIdx, vertexLookup, sampler, dataStep) {
 	var cubeIndex = 0;
+	//var vertlist = [];
+
 
 	if (grid[0].val < isolevel) cubeIndex |= 1;
 	if (grid[1].val < isolevel) cubeIndex |= 2;
@@ -373,24 +375,30 @@ PROCED.polygonize = function(grid, isolevel, triangles, getIdx, vertexLookup, sa
 		var vert2 = vertlist[getTriTableValue(cubeIndex, i + 2)];
 		var vert3 = vertlist[getTriTableValue(cubeIndex, i + 1)];
 
-		var normal1 = getNormalForVertex(vert1.x, vert1.y, vert1.z, sampler, dataStep);
-		var normal2 = getNormalForVertex(vert2.x, vert2.y, vert2.z, sampler, dataStep);
-		var normal3 = getNormalForVertex(vert3.x, vert3.y, vert3.z, sampler, dataStep);
+		var triangle = {
+			fst: [vert1.x, vert1.y, vert1.z],
+			snd: [vert2.x, vert2.y, vert2.z],
+			trd: [vert3.x, vert3.y, vert3.z]
+		};
+		triangles.push(triangle);
 
-		var vertexIndex = vertexList.length;
-		vertexList.push(vert1.x * scaleFactor, vert1.y * scaleFactor, vert1.z * scaleFactor);
-		vertexList.push(normal1.x, normal1.y, normal1.z);
-		indexList.push(vertexIndex / 6);
+		var idx1 = getIdx(vert1.x, vert1.y, vert1.z);
+		var idx2 = getIdx(vert2.x, vert2.y, vert2.z);
+		var idx3 = getIdx(vert3.x, vert3.y, vert3.z);
 
-		vertexIndex = vertexList.length;
-		vertexList.push(vert2.x * scaleFactor, vert2.y * scaleFactor, vert2.z * scaleFactor);
-		vertexList.push(normal2.x, normal2.y, normal2.z);
-		indexList.push(vertexIndex / 6);
-
-		vertexIndex = vertexList.length;
-		vertexList.push(vert3.x * scaleFactor, vert3.y * scaleFactor, vert3.z * scaleFactor);
-		vertexList.push(normal3.x, normal3.y, normal3.z);
-		indexList.push(vertexIndex / 6);
+		var normal;
+		if(!vertexLookup[idx1]) {
+			normal = getNormalForVertex(vert1.x, vert1.y, vert1.z, sampler, dataStep);
+			vertexLookup[idx1] = normal;
+		}
+		if(!vertexLookup[idx2]) {
+			normal = getNormalForVertex(vert2.x, vert2.y, vert2.z, sampler, dataStep);
+			vertexLookup[idx2] = normal;
+		}
+		if(!vertexLookup[idx3]) {
+			normal = getNormalForVertex(vert3.x, vert3.y, vert3.z, sampler, dataStep);
+			vertexLookup[idx3] = normal;
+		}
 
 		ntriang++;
 	}
