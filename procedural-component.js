@@ -335,7 +335,7 @@ pc.script.create('procedural', function (app) {
 	}
 	var decimalCount = 5;
 	function getIdx(x, y, z) {
-		return '' + x.toFixed(decimalCount) + ' ' + y.toFixed(decimalCount) + ' ' + z.toFixed(decimalCount);
+		return '' + ((x * 1000) | 0) + ' ' + ((y * 1000) | 0) + ' ' + ((z * 1000) | 0);
 	}
 
 
