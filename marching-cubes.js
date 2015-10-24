@@ -324,7 +324,7 @@ for(var i = 0; i < 12; i++) {
 		z: 0
 	});
 }
-PROCED.polygonize = function(grid, isolevel, triangles, getIdx, vertexLookup) {
+PROCED.polygonize = function(grid, isolevel, triangles, getIdx, vertexLookup, sampler, dataStep) {
 	var cubeIndex = 0;
 	//var vertlist = [];
 
@@ -375,21 +375,6 @@ PROCED.polygonize = function(grid, isolevel, triangles, getIdx, vertexLookup) {
 		var vert2 = vertlist[getTriTableValue(cubeIndex, i + 2)];
 		var vert3 = vertlist[getTriTableValue(cubeIndex, i + 1)];
 
-		var v1 = new pc.Vec3(
-			vert2.x - vert1.x,
-			vert2.y - vert1.y,
-			vert2.z - vert1.z
-		);
-		var v2 = new pc.Vec3(
-			vert3.x - vert1.x,
-			vert3.y - vert1.y,
-			vert3.z - vert1.z
-		);
-
-		var normal = new pc.Vec3().cross(v1, v2);
-		normal.normalize();
-		var area = v1.length() * v2.length() / 2;
-
 		var triangle = {
 			fst: [vert1.x, vert1.y, vert1.z],
 			snd: [vert2.x, vert2.y, vert2.z],
@@ -397,30 +382,37 @@ PROCED.polygonize = function(grid, isolevel, triangles, getIdx, vertexLookup) {
 		};
 		triangles.push(triangle);
 
-		var idxs = [
-			getIdx(vert1.x, vert1.y, vert1.z),
-			getIdx(vert2.x, vert2.y, vert2.z),
-			getIdx(vert3.x, vert3.y, vert3.z)
-		];
-		for(var j = 0; j < idxs.length; j++) {
-			var idx = idxs[j];
-			if(!vertexLookup[idx]) {
-				vertexLookup[idx] = [{
-					normal: normal,
-					area: area
-				}];
-			}
-			else {
-				vertexLookup[idx].push({
-					normal: normal,
-					area: area
-				});
-			}
+		var idx1 = getIdx(vert1.x, vert1.y, vert1.z);
+		var idx2 = getIdx(vert2.x, vert2.y, vert2.z);
+		var idx3 = getIdx(vert3.x, vert3.y, vert3.z);
+
+		var normal;
+		if(!vertexLookup[idx1]) {
+			normal = getNormalForVertex(vert1.x, vert1.y, vert1.z, sampler, dataStep);
+			vertexLookup[idx1] = normal;
 		}
+		if(!vertexLookup[idx2]) {
+			normal = getNormalForVertex(vert2.x, vert2.y, vert2.z, sampler, dataStep);
+			vertexLookup[idx2] = normal;
+		}
+		if(!vertexLookup[idx3]) {
+			normal = getNormalForVertex(vert3.x, vert3.y, vert3.z, sampler, dataStep);
+			vertexLookup[idx3] = normal;
+		}
+
 		ntriang++;
 	}
 	return ntriang;
 };
+
+function getNormalForVertex(x, y, z, sampler, dataStep) {
+	var outObj = {
+		x: -(sampler(x + dataStep.x, y, z) - sampler(x - dataStep.x, y , z)),
+		y: -(sampler(x, y + dataStep.y, z) - sampler(x, y - dataStep.y , z)),
+		z: -(sampler(x, y, z + dataStep.z) - sampler(x, y , z - dataStep.z))
+	}
+	return outObj;
+}
 
 function getTriTableValue(i, j) {
 	if( i >= 256 || j >= 16) {

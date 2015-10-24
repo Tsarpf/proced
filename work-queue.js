@@ -2,7 +2,7 @@
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
 	//var size = 5;
-	var size = 7;
+	var size = 13;
 	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 
@@ -140,24 +140,6 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 					worldCoords: worldCoords
 				}, 1);
 			}, function() {});
-
-			wrappingArray.setZoneFunction(zoneCount - 1, function() {}, function (arrayCell, worldCoords) {
-				var wrappedIdx = getIdx(arrayCell[0], arrayCell[1], arrayCell[2]);
-				var entity = chunkArray[wrappedIdx];
-				//if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, worldCoords)) {
-					/*
-					console.log('---------------------');
-					console.log('destroying:');
-					console.log('arrayCell', arrayCell);
-					console.log('worldCoords', worldCoords);
-					console.log('---------------------');
-					*/
-					queue.push({
-						type: 'destroy',
-						entity: entity
-					}, 2);
-				//}
-			});
 		},
 		initializeQueue: function() {
 			queue = async.priorityQueue(function(task, callback) {
@@ -204,6 +186,14 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 			else {
 				//console.log('draw new');
+				var entity = chunkArray[wrappedIdx];
+				if(entity) {
+					queue.push({
+						type: 'destroy',
+						entity: entity
+					}, 2);
+				}
+
 				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true, this.sampler);
 			}
 
