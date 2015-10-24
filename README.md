@@ -31,5 +31,14 @@ From here: https://github.com/caolan/async
 #### camera.js
 From old PlayCanvas tutorials that have been removed from their site.
 
+#### marching-cubes.js
+Lookup tables:
+// These tables are straight from Paul Bourke's page:
+// http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/
+// who in turn got them from Cory Gene Bloyd.
+
+Rest of the code is a js port I made from the code I found at Paul Bourke's page above.
+
+
 #### Everything else (MIT)
 By me, use however you wish!
