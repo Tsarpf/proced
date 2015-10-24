@@ -51,10 +51,20 @@ pc.script.create('demo', function (app) { //context / app can be taken as argume
 
 			this.text.queueMultipleText(texts);
 			
-			this.sceneOneSetup();
+			//this.sceneOneSetup();
+			this.sceneFreeRoamSetup();
 		},
 		update: function() {
 			this['scene' + this.currentScene + 'Update']();
+		},
+		sceneFreeRoamSetup: function() {
+			this.currentScene = 'FreeRoam';
+			this.workQueue.sampler = 'sin-noise-displace';
+			this.workQueue.startWorld();
+			this.camera.script.first_person_camera.mouseLook = true;
+			this.camera.script.first_person_camera.moveForwardLock = false;
+		},
+		sceneFreeRoamUpdate: function() {
 		},
 		sceneOneSetup: function() {
 			this.currentScene = 'One';
