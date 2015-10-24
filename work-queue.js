@@ -2,7 +2,7 @@
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
 	//var size = 5;
-	var size = 11;
+	var size = 7;
 	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 
@@ -159,7 +159,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			queue = async.priorityQueue(function(task, callback) {
 				switch(task.type) {
 				case 'draw':
-					setTimeout(function() {
+					requestAnimationFrame(function() {
 						that.handleDraw(task, callback);
 					}, 0);
 					break;

@@ -2,32 +2,36 @@
 /*global noise:false, PROCED:false*/
 
 //these should be refactored into the component.
-var height, depth, isolevel, dataStep, scaleFactor;
 pc.script.create('procedural', function (app) {
 	var ProceduralObject = function (entity) {
 		this.entity = entity;
 	};
 	ProceduralObject.prototype = {
+		height: null,
+		depth: null,
+		isolevel: null,
+		dataStep: null,
+		scaleFactor: null,
 		initialize: function () {
 			if(!this.chunkSize) {
 				return;
 			}
 			this.width = this.chunkSize.x;
-			height = this.chunkSize.y;
-			depth = this.chunkSize.z;
+			this.height = this.chunkSize.y;
+			this.depth = this.chunkSize.z;
 			//chunkPos = this.chunkPos;
 			this.chunkOffset = {
 				x: this.chunkPos.x * (this.width - 1),
-				y: this.chunkPos.y * (height - 1),
-				z: this.chunkPos.z * (depth - 1)
+				y: this.chunkPos.y * (this.height - 1),
+				z: this.chunkPos.z * (this.depth - 1)
 			};
 
-			scaleFactor = this.scaleFactor;
-			isolevel = 0.5;
-			dataStep = {
+			this.scaleFactor = this.scaleFactor;
+			this.isolevel = 0.5;
+			this.dataStep = {
 				x: 1 / this.width,
-				y: 1 / height,
-				z: 1 / depth
+				y: 1 / this.height,
+				z: 1 / this.depth
 			};
 
 			switch(this.sampler) {
@@ -134,12 +138,12 @@ pc.script.create('procedural', function (app) {
 			//var sampler = getFlatVal;
 			var triangles = [];
 			var vertexLookup = [];
-			for(var z = 0; z < depth - 1; z++) {
-				for(var y = 0; y < height - 1; y++) {
+			for(var z = 0; z < this.depth - 1; z++) {
+				for(var y = 0; y < this.height - 1; y++) {
 					for(var x = 0; x < this.width - 1; x++) {
 						var cube = this.getCubeAtPos(x,y,z, sampler);
 						var cubeTris = [];
-						PROCED.polygonize(cube, isolevel, cubeTris);
+						PROCED.polygonize(cube, this.isolevel, cubeTris);
 
 						for(var i = 0; i < cubeTris.length; i+=9) {
 							var v1 = new pc.Vec3(
@@ -201,7 +205,7 @@ pc.script.create('procedural', function (app) {
 					normal = getAverageNormal(vertexLookup[idx]);
 					//normal.scale(-1);
 					if(!vertexIndexLookup[idx]) {
-						vertexList.push(vert[0] * scaleFactor, vert[1] * scaleFactor, vert[2] * scaleFactor);
+						vertexList.push(vert[0] * this.scaleFactor, vert[1] * this.scaleFactor, vert[2] * this.scaleFactor);
 						vertexList.push(normal.x, normal.y, normal.z);
 						var len = vertexList.length;
 						vertexIndexLookup[idx] = len - 3;
@@ -212,7 +216,7 @@ pc.script.create('procedural', function (app) {
 			return {vertexList: vertexList, indexList: indexList};
 		},
 		getNoiseIdx: function(x,y,z) {
-			return x + this.width * (y + height * z);
+			return x + this.width * (y + this.height * z);
 		},
 		noiseLookup: [],
 		getPerlinVal: function(x, y, z) {
@@ -225,14 +229,14 @@ pc.script.create('procedural', function (app) {
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
 				value = noise.perlin3(
-					x / 20 + dataStep.x,
-					y / 20 + dataStep.y,
-					z / 20 + dataStep.z
+					x / 20 + this.dataStep.x,
+					y / 20 + this.dataStep.y,
+					z / 20 + this.dataStep.z
 				);
 				value += noise.perlin3(
-					x / 10 + dataStep.x,
-					y / 10 + dataStep.y,
-					z / 10 + dataStep.z
+					x / 10 + this.dataStep.x,
+					y / 10 + this.dataStep.y,
+					z / 10 + this.dataStep.z
 				) / 5;
 				if(y < 0) {
 					value += 1;
@@ -254,9 +258,9 @@ pc.script.create('procedural', function (app) {
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
 				value = noise.simplex3(
-					x / 20 + dataStep.x,
-					y / 20 + dataStep.y,
-					z / 20 + dataStep.z
+					x / 20 + this.dataStep.x,
+					y / 20 + this.dataStep.y,
+					z / 20 + this.dataStep.z
 				);
 				if(y < 0) {
 					value += 1;
@@ -285,9 +289,9 @@ pc.script.create('procedural', function (app) {
 			z += this.chunkOffset.z;
 			var edge = Math.sin(x / 10) * 5;
 			edge += noise.simplex3(
-				x / 10 + dataStep.x,
-				y / 10 + dataStep.y,
-				z / 10 + dataStep.z
+				x / 10 + this.dataStep.x,
+				y / 10 + this.dataStep.y,
+				z / 10 + this.dataStep.z
 			) * 3;
 
 			if(y < edge) {
