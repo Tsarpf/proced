@@ -142,7 +142,7 @@ pc.script.create('procedural', function (app) {
 						//var cubeTris = [];
 						//PROCED.polygonize(cube, this.isolevel, cubeTris);
 						//debugger;
-						PROCED.polygonize(cube, this.isolevel, triangles, getIdx, vertexLookup, sampler, this.dataStep);
+						PROCED.polygonize(cube, this.isolevel, triangles, getIdx, vertexLookup);
 					}
 				}
 			}
@@ -155,7 +155,7 @@ pc.script.create('procedural', function (app) {
 					var vert = triangles[i][vertKey];
 					idx = getIdx(vert[0], vert[1], vert[2]);
 					//var normal = vertexLookup[idx] //calc normal here
-					normal = vertexLookup[idx];
+					normal = getAverageNormal(vertexLookup[idx]);
 					//normal.scale(-1);
 					if(!vertexIndexLookup[idx]) {
 						vertexList.push(vert[0] * this.scaleFactor, vert[1] * this.scaleFactor, vert[2] * this.scaleFactor);
@@ -182,17 +182,15 @@ pc.script.create('procedural', function (app) {
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
 				value = noise.perlin3(
-					x / 10 + this.dataStep.x,
-					y / 10 + this.dataStep.y,
-					z / 10 + this.dataStep.z
+					x / 20 + this.dataStep.x,
+					y / 20 + this.dataStep.y,
+					z / 20 + this.dataStep.z
 				);
-				/*
 				value += noise.perlin3(
 					x / 10 + this.dataStep.x,
 					y / 10 + this.dataStep.y,
 					z / 10 + this.dataStep.z
 				) / 5;
-				*/
 				if(y < 0) {
 					value += 1;
 				}
