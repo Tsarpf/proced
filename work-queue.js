@@ -2,7 +2,7 @@
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
 	//var size = 5;
-	var size = 9;
+	var size = 11;
 	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 
@@ -26,24 +26,34 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			that = this;
 			objCreator = this.entity.script.objcreator;
 			camera = app.root.findByName('Camera');
+			this.loadWorld();
+			this.startWorld();
 
 		},
 		loadWorld: function() {
+			this.sampler = 'perlin';
+
 			this.middlePosition = [
 				size / 2 * objCreator.chunkSizeX * objCreator.scaleFactor,
 				size / 2 * objCreator.chunkSizeY * objCreator.scaleFactor,
 				size / 2 * objCreator.chunkSizeZ * objCreator.scaleFactor
 			];
+
+
 			var that = this;
 			for(var x = 0; x < size; x++) {
 				for(var y = 0; y < size; y++) {
 					for(var z = 0; z < size; z++) {
+						/*
 						var closure = function(x,y,z) {
 							return function() {
+							*/
 								chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true, that.sampler);
+								/*
 							};
 						};
 						closure(x,y,z)();
+						*/
 						//requestAnimationFrame(closure(x,y,z), 0);
 					}
 				}
@@ -53,13 +63,15 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 		sampler: 'sin',
 		updateEnabled: false,
 		startWorld: function() {
-			//camera.script.first_person_camera.setPosition(this.middlePos);
-			this.updateEnabled = true;
+			camera.script.first_person_camera.setPosition(this.middlePosition);
+			camera.script.first_person_camera.mouseLook = true;
+			camera.script.first_person_camera.moveForwardLock = false;
+
 			this.initializeZones();
 			this.initializeQueue();
 		},
 		vecEqual: function(fst, snd) {
-			return fst.x === snd.x && fst.y === snd.y && fst.z === snd.z;	
+			return fst.x === snd.x && fst.y === snd.y && fst.z === snd.z;
 		},
 		getAvg: function(list) {
 			var sum = 0;
@@ -70,15 +82,6 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			return sum / i;
 		},
 		update: function() {
-			/*
-			 *
-			 * DISABLED AT FIRST BECAUSE OF DEMO STUFF!
-			 *
-			 */
-			if(!this.updateEnabled) {
-				return;
-			}
-
 			var cameraPos = camera.getPosition();
 			var xChunkPos = Math.floor(cameraPos.x / objCreator.chunkSizeX / objCreator.scaleFactor);
 			var yChunkPos = Math.floor(cameraPos.y / objCreator.chunkSizeY / objCreator.scaleFactor);
@@ -113,7 +116,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 				console.log('y minus');
 				wrappingArray.dirYMinus();
 			}
-			
+
 			if(zChunkPos > oldPosZ) {
 				oldPosZ = zChunkPos;
 				console.log('z plus');
@@ -126,22 +129,30 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 		},
 		initializeZones: function() {
-			wrappingArray.setZoneFunction(zoneCount - 1, function (arrayCell, worldCoords) {
+			wrappingArray.setZoneFunction(zoneCount - 2, function (arrayCell, worldCoords) {
 				queue.push({
 					type: 'draw',
 					arrayCell: arrayCell,
 					worldCoords: worldCoords
 				}, 1);
-			}, function (arrayCell, worldCoords) {
-			//}, function () {
+			}, function() {});
+
+			wrappingArray.setZoneFunction(zoneCount - 1, function() {}, function (arrayCell, worldCoords) {
 				var wrappedIdx = getIdx(arrayCell[0], arrayCell[1], arrayCell[2]);
 				var entity = chunkArray[wrappedIdx];
-				if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, worldCoords)) {
+				//if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, worldCoords)) {
+					/*
+					console.log('---------------------');
+					console.log('destroying:');
+					console.log('arrayCell', arrayCell);
+					console.log('worldCoords', worldCoords);
+					console.log('---------------------');
+					*/
 					queue.push({
 						type: 'destroy',
 						entity: entity
 					}, 2);
-				}
+				//}
 			});
 		},
 		initializeQueue: function() {
@@ -178,13 +189,13 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords)) {
 				//console.log('already loaded');
 				if(chunkArray[wrappedIdx].script.procedural.state === 'loaded') {
-					chunkArray[wrappedIdx].script.procedural.addComponents();	
-				} 
+					chunkArray[wrappedIdx].script.procedural.addComponents();
+				}
 				else {
 					//If f.ex drawn, this will do nothing
 					//If in the process of loading, it will continue to draw it afterwards
 					//a bit non-robust
-					chunkArray[wrappedIdx].script.procedural.visible = true;	
+					chunkArray[wrappedIdx].script.procedural.visible = true;
 				}
 			}
 			else {

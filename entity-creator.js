@@ -16,14 +16,14 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 		chunkSizeX: 8,
 		chunkSizeY: 8,
 		chunkSizeZ: 8,
-		scaleFactor: 256,
+		scaleFactor: 1,
 		addNewEntity: function(position, visible, sampler) {
 			position = [
 				position[XPOS],
 				position[YPOS],
 				position[ZPOS]
 			];
-			var entity = new pc.Entity();	
+			var entity = new pc.Entity();
 			entity.addComponent('script', {
 				scripts: [{
 					url: 'procedural-component.js',
@@ -50,7 +50,7 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 					}, {
 						name: 'sampler',
 						type: 'string',
-						value: sampler 
+						value: sampler
 					}],
 					name: 'procComponent'
 				}]

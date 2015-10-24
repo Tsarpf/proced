@@ -35,7 +35,7 @@ pc.script.create('procedural', function (app) {
 				this.samplerFunction = this.getNoiseVal;
 				break;
 			case 'perlin':
-				this.samplerFunction = this.getNoiseVal;
+				this.samplerFunction = this.getPerlinVal;
 				break;
 			case 'sin':
 				this.samplerFunction = this.getSinVal;
@@ -44,7 +44,6 @@ pc.script.create('procedural', function (app) {
 				this.samplerFunction = this.getNoiseDisplacedSinVal;
 				break;
 			}
-
 			this.draw();
 		},
 		state: 'loading',
@@ -168,7 +167,7 @@ pc.script.create('procedural', function (app) {
 								*/
 							};
 							triangles.push(triangle);
-							
+
 							//Add triangle normals for each vertex here
 							//so they can be used in the next pass when generating the actual vertex and index buffers
 							for(var j = i; j < i + 9; j+=3) {
