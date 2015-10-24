@@ -6,6 +6,7 @@ pc.script.create('procedural', function (app) {
 	var ProceduralObject = function (entity) {
 		this.entity = entity;
 	};
+	var that;
 	ProceduralObject.prototype = {
 		height: null,
 		depth: null,
@@ -13,6 +14,7 @@ pc.script.create('procedural', function (app) {
 		dataStep: null,
 		scaleFactor: null,
 		initialize: function () {
+			that = this;
 			if(!this.chunkSize) {
 				return;
 			}
@@ -335,8 +337,9 @@ pc.script.create('procedural', function (app) {
 	}
 	var decimalCount = 5;
 	function getIdx(x, y, z) {
-		return '' + ((x * 1000) | 0) + ' ' + ((y * 1000) | 0) + ' ' + ((z * 1000) | 0);
+		return ((x * 1000) | 0) + that.width * (((y * 1000) | 0) + that.height * ((z * 1000) | 0));
 	}
+
 
 
 	return ProceduralObject;
