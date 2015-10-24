@@ -135,6 +135,9 @@ pc.script.create('procedural', function (app) {
 			this.noiseLookup = [];
 			var triangles = [];
 			var vertexLookup = [];
+
+			var vertexList = [];
+			var indexList = [];
 			for(var z = 0; z < this.depth - 1; z++) {
 				for(var y = 0; y < this.height - 1; y++) {
 					for(var x = 0; x < this.width - 1; x++) {
@@ -142,28 +145,8 @@ pc.script.create('procedural', function (app) {
 						//var cubeTris = [];
 						//PROCED.polygonize(cube, this.isolevel, cubeTris);
 						//debugger;
-						PROCED.polygonize(cube, this.isolevel, triangles, getIdx, vertexLookup, sampler, this.dataStep);
+						PROCED.polygonize(cube, this.isolevel, triangles, getIdx, vertexLookup, sampler, this.dataStep, vertexList, indexList, this.scaleFactor);
 					}
-				}
-			}
-
-			var vertexList = [];
-			var indexList = [];
-			var vertexIndexLookup = [];
-			for(i = 0; i < triangles.length; i++) {
-				for(var vertKey in triangles[i]) {
-					var vert = triangles[i][vertKey];
-					idx = getIdx(vert[0], vert[1], vert[2]);
-					//var normal = vertexLookup[idx] //calc normal here
-					normal = vertexLookup[idx];
-					//normal.scale(-1);
-					if(!vertexIndexLookup[idx]) {
-						vertexList.push(vert[0] * this.scaleFactor, vert[1] * this.scaleFactor, vert[2] * this.scaleFactor);
-						vertexList.push(normal.x, normal.y, normal.z);
-						var len = vertexList.length;
-						vertexIndexLookup[idx] = len - 3;
-					}
-					indexList.push(vertexIndexLookup[idx] / 6);
 				}
 			}
 			return {vertexList: vertexList, indexList: indexList};
