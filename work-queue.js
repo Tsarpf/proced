@@ -26,8 +26,12 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			that = this;
 			objCreator = this.entity.script.objcreator;
 			camera = app.root.findByName('Camera');
+
+			var t0 = performance.now();
 			this.loadWorld();
 			this.startWorld();
+			var t1 = performance.now();
+			console.log('initialized in %d milliseconds', t1 - t0);
 
 		},
 		loadWorld: function() {
