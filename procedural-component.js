@@ -156,9 +156,7 @@ pc.script.create('procedural', function (app) {
 				for(var vertKey in triangles[i]) {
 					var vert = triangles[i][vertKey];
 					idx = getIdx(vert[0], vert[1], vert[2]);
-					//var normal = vertexLookup[idx] //calc normal here
 					normal = getAverageNormal(vertexLookup[idx]);
-					//normal.scale(-1);
 					if(!vertexIndexLookup[idx]) {
 						vertexList.push(vert[0] * this.scaleFactor, vert[1] * this.scaleFactor, vert[2] * this.scaleFactor);
 						vertexList.push(normal.x, normal.y, normal.z);
@@ -174,40 +172,6 @@ pc.script.create('procedural', function (app) {
 			return x + this.width * (y + this.height * z);
 		},
 		noiseLookup: [],
-		getPerlinVal: function(x, y, z) {
-			var idx = this.getNoiseIdx(x,y,z);
-			x += this.chunkOffset.x;
-			y += this.chunkOffset.y;
-			z += this.chunkOffset.z;
-
-			var value = 0;
-			var lookupVal = this.noiseLookup[idx];
-			if(lookupVal === undefined) {
-				/*
-				value = noise.perlin3(
-					x / 50 + this.dataStep.x,
-					y / 50 + this.dataStep.y,
-					z / 50 + this.dataStep.z
-				);
-				*/
-
-				var limit = noise.perlin2(
-					x / 100 + this.dataStep.x,
-					z / 100 + this.dataStep.z
-				) * 50;
-				limit += 10;
-				if(y < limit) {
-					value = 1;
-				}
-
-
-				this.noiseLookup[idx] = value;
-			}
-			else {
-				value = lookupVal;
-			}
-			return value;
-		},
 		getNoiseVal: function(x, y, z) {
 			var idx = this.getNoiseIdx(x,y,z);
 			x += this.chunkOffset.x;
@@ -218,7 +182,7 @@ pc.script.create('procedural', function (app) {
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
 				value = noise.simplex3(
-					x / 25 + this.dataStep.x,
+					x / 25 + this.dataStep.x, //Add a small number (dataStep) to input values because simplex and perlin noise always return 0 for integer inputs
 					y / 25 + this.dataStep.y,
 					z / 25 + this.dataStep.z
 				);
@@ -236,34 +200,6 @@ pc.script.create('procedural', function (app) {
 				value = lookupVal;
 			}
 			return value;
-		},
-		getSinVal: function(x, y, z) {
-			x += this.chunkOffset.x;
-			y += this.chunkOffset.y - 10;
-			z += this.chunkOffset.z;
-			var edge = Math.sin(x / 10) * 5
-			if(y < edge) {
-				return 1;
-			}
-			else
-				return 0;
-		},
-		getNoiseDisplacedSinVal: function(x, y, z) {
-			x += this.chunkOffset.x;
-			y += this.chunkOffset.y - 5;
-			z += this.chunkOffset.z;
-			var edge = Math.sin(x / 10) * 5;
-			edge += noise.simplex3(
-				x / 10 + this.dataStep.x,
-				y / 10 + this.dataStep.y,
-				z / 10 + this.dataStep.z
-			) * 3;
-
-			if(y < edge) {
-				return 1;
-			}
-			else
-				return 0;
 		},
 		getCubeAtPos: function(x, y, z, sampler) {
 			var cube = [];
@@ -335,7 +271,6 @@ pc.script.create('procedural', function (app) {
 			return cube;
 		}
 	};
-
 	function getAverageNormal(trianglesData) {
 		var sumVec = new pc.Vec3(0,0,0);
 		for(var i = 0; i < trianglesData.length; i++) {
