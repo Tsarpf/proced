@@ -2,7 +2,7 @@
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
 	//var maxFrameComputingTime = 10;
 	//var size = 5;
-	var size = 9;
+	var size = 13;
 	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 
@@ -35,7 +35,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 
 		},
 		loadWorld: function() {
-			this.sampler = 'perlin';
+			this.sampler = 'alien';
 
 			this.middlePosition = [
 				size / 2 * objCreator.chunkSizeX * objCreator.scaleFactor,
@@ -48,17 +48,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			for(var x = 0; x < size; x++) {
 				for(var y = 0; y < size; y++) {
 					for(var z = 0; z < size; z++) {
-						/*
-						var closure = function(x,y,z) {
-							return function() {
-							*/
-								chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true, that.sampler);
-								/*
-							};
-						};
-						closure(x,y,z)();
-						*/
-						//requestAnimationFrame(closure(x,y,z), 0);
+						chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true, that.sampler);
 					}
 				}
 			}
@@ -133,7 +123,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 		},
 		initializeZones: function() {
-			wrappingArray.setZoneFunction(zoneCount - 2, function (arrayCell, worldCoords) {
+			wrappingArray.setZoneFunction(zoneCount - 1, function (arrayCell, worldCoords) {
 				queue.push({
 					type: 'draw',
 					arrayCell: arrayCell,
@@ -175,23 +165,25 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords)) {
 				//console.log('already loaded');
 				if(chunkArray[wrappedIdx].script.procedural.state === 'loaded') {
+					//console.log('draw already loaded');
 					chunkArray[wrappedIdx].script.procedural.addComponents();
 				}
 				else {
 					//If f.ex drawn, this will do nothing
 					//If in the process of loading, it will continue to draw it afterwards
 					//a bit non-robust
+					//console.log('draw when finished loading ', chunkArray[wrappedIdx].script.procedural.state);
 					chunkArray[wrappedIdx].script.procedural.visible = true;
 				}
 			}
 			else {
-				//console.log('draw new');
+				//console.log('draw completely new');
 				var entity = chunkArray[wrappedIdx];
 				if(entity) {
 					queue.push({
 						type: 'destroy',
 						entity: entity
-					}, 2);
+					}, 3);
 				}
 				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true, this.sampler);
 			}
@@ -203,13 +195,15 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			var wrappedIdx = getIdx(obj.arrayCell[0], obj.arrayCell[1], obj.arrayCell[2]);
 			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script  && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords)) {
 				//Nothing to do, already loaded / loading
+				//console.log('already loaded');
 				return callback();
 			}
 			else {
-				requestAnimationFrame(function() {
+				//console.log('load new');
+				//requestAnimationFrame(function() {
 					chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], false, this.sampler);
 					callback();
-				});
+				//});
 			}
 		}
 	};

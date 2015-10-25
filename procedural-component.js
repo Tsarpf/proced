@@ -105,13 +105,7 @@ pc.script.create('procedural', function (app) {
 		},
 		addComponents: function() {
 			this.state = 'drawing';
-			app.systems.model.addComponent(this.entity, {
-				type: 'asset'
-			});
-			this.entity.model.model = this.model;
-			this.state = 'drawn';
-		},
-		draw: function() {
+
 			var mesh = this.getMesh(),
 				node = new pc.GraphNode(),
 				//material = new pc.BasicMaterial();
@@ -124,6 +118,15 @@ pc.script.create('procedural', function (app) {
 			model.graph = node;
 			model.meshInstances = [meshInstance];
 			this.model = model;
+
+			app.systems.model.addComponent(this.entity, {
+				type: 'asset'
+			});
+			this.entity.model.model = this.model;
+			this.state = 'drawn';
+		},
+		draw: function() {
+
 
 			this.state = 'loaded';
 
@@ -141,9 +144,6 @@ pc.script.create('procedural', function (app) {
 				for(var y = 0; y < this.height - 1; y++) {
 					for(var x = 0; x < this.width - 1; x++) {
 						var cube = this.getCubeAtPos(x,y,z, sampler);
-						//var cubeTris = [];
-						//PROCED.polygonize(cube, this.isolevel, cubeTris);
-						//debugger;
 						PROCED.polygonize(cube, this.isolevel, triangles, getIdx, vertexLookup);
 					}
 				}
@@ -180,22 +180,27 @@ pc.script.create('procedural', function (app) {
 			y += this.chunkOffset.y;
 			z += this.chunkOffset.z;
 
-			var value;
+			var value = 0;
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
+				/*
 				value = noise.perlin3(
-					x / 20 + this.dataStep.x,
-					y / 20 + this.dataStep.y,
-					z / 20 + this.dataStep.z
+					x / 50 + this.dataStep.x,
+					y / 50 + this.dataStep.y,
+					z / 50 + this.dataStep.z
 				);
-				value += noise.perlin3(
-					x / 10 + this.dataStep.x,
-					y / 10 + this.dataStep.y,
-					z / 10 + this.dataStep.z
-				) / 5;
-				if(y < 0) {
-					value += 1;
+				*/
+
+				var limit = noise.perlin2(
+					x / 100 + this.dataStep.x,
+					z / 100 + this.dataStep.z
+				) * 50;
+				limit += 10;
+				if(y < limit) {
+					value = 1;
 				}
+
+
 				this.noiseLookup[idx] = value;
 			}
 			else {
@@ -213,11 +218,16 @@ pc.script.create('procedural', function (app) {
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
 				value = noise.simplex3(
-					x / 20 + this.dataStep.x,
-					y / 20 + this.dataStep.y,
-					z / 20 + this.dataStep.z
+					x / 25 + this.dataStep.x,
+					y / 25 + this.dataStep.y,
+					z / 25 + this.dataStep.z
 				);
-				if(y < 0) {
+				value += noise.simplex3(
+					x / 5 + this.dataStep.x,
+					y / 5 + this.dataStep.y,
+					z / 5 + this.dataStep.z
+				) / 5;
+				if(y < 25) {
 					value += 1;
 				}
 				this.noiseLookup[idx] = value;
@@ -339,8 +349,5 @@ pc.script.create('procedural', function (app) {
 	function getIdx(x, y, z) {
 		return ((x * 1000) | 0) + that.width * (((y * 1000) | 0) + that.height * ((z * 1000) | 0));
 	}
-
-
-
 	return ProceduralObject;
 });
