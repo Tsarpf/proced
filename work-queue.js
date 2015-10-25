@@ -6,7 +6,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 	var zoneCount = Math.ceil(size / 2);
 	//var size = 7;
 
-	var workerCount = 1;
+	var workerCount = 2;
 
 	var wrappingArray = PROCED.wrappingArray(size);
 	var chunkArray = [];
