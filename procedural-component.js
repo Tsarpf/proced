@@ -152,11 +152,11 @@ pc.script.create('procedural', function (app) {
 			var vertexList = [];
 			var indexList = [];
 			var vertexIndexLookup = [];
-			for(i = 0; i < triangles.length; i++) {
+			for(var i = 0; i < triangles.length; i++) {
 				for(var vertKey in triangles[i]) {
 					var vert = triangles[i][vertKey];
-					idx = getIdx(vert[0], vert[1], vert[2]);
-					normal = getAverageNormal(vertexLookup[idx]);
+					var idx = getIdx(vert[0], vert[1], vert[2]);
+					var normal = getAverageNormal(vertexLookup[idx]);
 					if(!vertexIndexLookup[idx]) {
 						vertexList.push(vert[0] * this.scaleFactor, vert[1] * this.scaleFactor, vert[2] * this.scaleFactor);
 						vertexList.push(normal.x, normal.y, normal.z);
@@ -181,19 +181,40 @@ pc.script.create('procedural', function (app) {
 			var value;
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
-				value = noise.simplex3(
-					x / 25 + this.dataStep.x, //Add a small number (dataStep) to input values because simplex and perlin noise always return 0 for integer inputs
-					y / 25 + this.dataStep.y,
-					z / 25 + this.dataStep.z
-				);
+				value = 0;
+				
+				var limit = noise.perlin2(
+					x / 100 + this.dataStep.x,
+					z / 100 + this.dataStep.z
+				) * 30;
+				limit += 35;
+				if(y < limit) {
+					value += 1;
+				}
+				if(y > limit) {
+					value -= 0.25;
+				}
+				if(y > limit) {
+					value += noise.simplex3(
+						x / 55 + this.dataStep.x, //Add a small number (dataStep) to input values because simplex and perlin noise always return 0 for integer inputs
+						y / 55 + this.dataStep.y,
+						z / 55 + this.dataStep.z
+					);
+				}
+				else {
+					value += noise.simplex3(
+						x / 25 + this.dataStep.x, //Add a small number (dataStep) to input values because simplex and perlin noise always return 0 for integer inputs
+						y / 25 + this.dataStep.y,
+						z / 25 + this.dataStep.z
+					);
+				}
+				//Adds detail, not just weird alien blobs
 				value += noise.simplex3(
 					x / 5 + this.dataStep.x,
 					y / 5 + this.dataStep.y,
 					z / 5 + this.dataStep.z
-				) / 5;
-				if(y < 25) {
-					value += 1;
-				}
+				) / 15;
+
 				this.noiseLookup[idx] = value;
 			}
 			else {
@@ -280,7 +301,6 @@ pc.script.create('procedural', function (app) {
 		sumVec.normalize();
 		return sumVec;
 	}
-	var decimalCount = 5;
 	function getIdx(x, y, z) {
 		return ((x * 1000) | 0) + that.width * (((y * 1000) | 0) + that.height * ((z * 1000) | 0));
 	}

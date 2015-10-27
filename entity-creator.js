@@ -14,7 +14,7 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 			noise.seed(12);
 		},
 		chunkSizeX: 8,
-		chunkSizeY: 4,
+		chunkSizeY: 8,
 		chunkSizeZ: 8,
 		scaleFactor: 128,
 		addNewEntity: function(position, visible, sampler) {
