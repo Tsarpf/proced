@@ -4,6 +4,10 @@
 
 procedural graphics stuff using marching cubes, javascript, playcanvas
 
+### Blog post / write-up about the thing
+
+http://rabid.prototyping.xyz/2015/11/08/3d-infinite-terrain-generation-in-javascript-using-marching-cubes-and-playcanvas/
+
 ### Flash talk 'slides' I made using only code in this repository
 
 https://videopress.com/v/uDKGASGw
