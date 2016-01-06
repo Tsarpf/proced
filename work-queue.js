@@ -90,33 +90,39 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			if(xChunkPos > oldPosX) {
 				oldPosX = xChunkPos;
 				console.log('x plus');
+				queue.kill();
 				wrappingArray.dirXPlus();
 			}
 			else if(xChunkPos < oldPosX) {
 				oldPosX = xChunkPos;
 				console.log('x minus');
+				queue.kill();
 				wrappingArray.dirXMinus();
 			}
 
 			if(yChunkPos > oldPosY) {
 				oldPosY = yChunkPos;
 				console.log('y plus');
+				queue.kill();
 				wrappingArray.dirYPlus();
 			}
 			else if(yChunkPos < oldPosY) {
 				oldPosY = yChunkPos;
 				console.log('y minus');
+				queue.kill();
 				wrappingArray.dirYMinus();
 			}
 
 			if(zChunkPos > oldPosZ) {
 				oldPosZ = zChunkPos;
 				console.log('z plus');
+				queue.kill();
 				wrappingArray.dirZPlus();
 			}
 			else if(zChunkPos < oldPosZ) {
 				oldPosZ = zChunkPos;
 				console.log('z minus');
+				queue.kill();
 				wrappingArray.dirZMinus();
 			}
 		},
@@ -131,7 +137,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 					}, i + 1);
 				}, function() {});
 			};
-			//what exactly is happening here?
+			//what exactly is going on here?
 			for(var i = 0; i < 4; i++) {
 				closure(1, i);
 			}
