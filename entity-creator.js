@@ -16,8 +16,15 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 		chunkSizeX: 8,
 		chunkSizeY: 8,
 		chunkSizeZ: 8,
-		scaleFactor: 128,
-		addNewEntity: function(position, visible, sampler) {
+		scaleFactor: 32,
+		addNewEntity: function(position, visible, sampler, cellSize) {
+			//No support for non-cube-shaped-blocks. I think they're not too useful anyway
+			if(cellSize > this.chunkSizeX) {
+				cellSize = this.chunkSizeX;
+			}
+			else if(cellSize < 1) {
+				cellSize = 1;
+			}
 			position = [
 				position[XPOS],
 				position[YPOS],
@@ -47,6 +54,10 @@ pc.script.create('objcreator', function (app) { //context / app can be taken as 
 						name: 'visible',
 						type: 'boolean',
 						value: visible
+					}, {
+						name: 'cellSize',
+						type: 'number',
+						value: cellSize 
 					}, {
 						name: 'sampler',
 						type: 'string',

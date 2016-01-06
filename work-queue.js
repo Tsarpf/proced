@@ -1,12 +1,11 @@
 /*global PROCED:false, async:false*/
+var asdf = PROCED['surface-nets'];
+console.log(asdf);
 pc.script.create('workQueue', function (app) { //context / app can be taken as argument
-	//var maxFrameComputingTime = 10;
-	//var size = 5;
-	var size = 13;
+	var size = 11;
 	var zoneCount = Math.ceil(size / 2);
-	//var size = 7;
 
-	var workerCount = 2;
+	var workerCount = 3;
 
 	var wrappingArray = PROCED.wrappingArray(size);
 	var chunkArray = [];
@@ -16,6 +15,7 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 	var first = true;
 
 	var queue;
+	var deleteQueue;
 
 	var WorkQueue = function (entity) {
 		this.entity = entity;
@@ -43,12 +43,11 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 				size / 2 * objCreator.chunkSizeZ * objCreator.scaleFactor
 			];
 
-
 			var that = this;
 			for(var x = 0; x < size; x++) {
 				for(var y = 0; y < size; y++) {
 					for(var z = 0; z < size; z++) {
-						chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true, that.sampler);
+						chunkArray[getIdx(x,y,z)] = objCreator.addNewEntity([x,y,z], true, that.sampler, 2);
 					}
 				}
 			}
@@ -105,7 +104,6 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 				wrappingArray.dirYPlus();
 			}
 			else if(yChunkPos < oldPosY) {
-				console.log(yChunkPos + ' ' + oldPosY);
 				oldPosY = yChunkPos;
 				console.log('y minus');
 				wrappingArray.dirYMinus();
@@ -123,13 +121,23 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			}
 		},
 		initializeZones: function() {
-			wrappingArray.setZoneFunction(zoneCount - 1, function (arrayCell, worldCoords) {
-				queue.push({
-					type: 'draw',
-					arrayCell: arrayCell,
-					worldCoords: worldCoords
-				}, 1);
-			}, function() {});
+			var closure = function(size, i) {
+				wrappingArray.setZoneFunction(i, function (arrayCell, worldCoords) {
+					queue.push({
+						type: 'draw',
+						arrayCell: arrayCell,
+						worldCoords: worldCoords,
+						cellSize: size 
+					}, i + 1);
+				}, function() {});
+			};
+			//what exactly is happening here?
+			for(var i = 0; i < 4; i++) {
+				closure(1, i);
+			}
+			for(i = 4; i < zoneCount; i++) {
+				closure(i, i);
+			}
 		},
 		initializeQueue: function() {
 			queue = async.priorityQueue(function(task, callback) {
@@ -144,12 +152,10 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 						that.handleLoad(task, callback);
 					}, 0);
 					break;
-				case 'destroy':
-					requestAnimationFrame(function() {
-						that.handleDestroy(task, callback);
-					}, 0);
-
 				}
+			}, workerCount);
+			deleteQueue = async.priorityQueue(function(task, callback) {
+				that.handleDestroy(task, callback);
 			}, workerCount);
 		},
 		handleDestroy: function(obj, callback) {
@@ -160,9 +166,8 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 			callback();
 		},
 		handleDraw: function(obj, callback) {
-			//console.log('handle draw');
 			var wrappedIdx = getIdx(obj.arrayCell[0], obj.arrayCell[1], obj.arrayCell[2]);
-			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords)) {
+			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords) && obj.cellSize === chunkArray[wrappedIdx].script.procedural.cellSize) {
 				//console.log('already loaded');
 				if(chunkArray[wrappedIdx].script.procedural.state === 'loaded') {
 					//console.log('draw already loaded');
@@ -175,18 +180,29 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 					//console.log('draw when finished loading ', chunkArray[wrappedIdx].script.procedural.state);
 					chunkArray[wrappedIdx].script.procedural.visible = true;
 				}
+				return callback();
 			}
-			else {
-				//console.log('draw completely new');
+			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords) && obj.cellSize < chunkArray[wrappedIdx].script.procedural.cellSize) {
 				var entity = chunkArray[wrappedIdx];
 				if(entity) {
-					queue.push({
+					deleteQueue.push({
 						type: 'destroy',
 						entity: entity
-					}, 3);
+					}, 0);
 				}
-				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true, this.sampler);
+				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true, this.sampler, obj.cellSize);
 			}
+			if(chunkArray[wrappedIdx] && chunkArray[wrappedIdx].script && chunkArray[wrappedIdx].script.procedural && !that.vecEqual(chunkArray[wrappedIdx].script.procedural.chunkPos, obj.worldCoords) && obj.cellSize < chunkArray[wrappedIdx].script.procedural.cellSize) {
+				entity = chunkArray[wrappedIdx];
+				if(entity) {
+					deleteQueue.push({
+						type: 'destroy',
+						entity: entity
+					}, 0);
+				}
+				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], true, this.sampler, obj.cellSize);
+			}
+
 
 			callback();
 		},
@@ -199,11 +215,8 @@ pc.script.create('workQueue', function (app) { //context / app can be taken as a
 				return callback();
 			}
 			else {
-				//console.log('load new');
-				//requestAnimationFrame(function() {
-					chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], false, this.sampler);
-					callback();
-				//});
+				chunkArray[wrappedIdx] = that.entity.script.objcreator.addNewEntity([obj.worldCoords.x, obj.worldCoords.y, obj.worldCoords.z], false, this.sampler);
+				callback();
 			}
 		}
 	};

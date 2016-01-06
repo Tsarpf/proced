@@ -28,7 +28,10 @@ pc.script.create('procedural', function (app) {
 				z: this.chunkPos.z * (this.depth - 1)
 			};
 
+			//These should be defined by the party that initializes this component
 			this.scaleFactor = this.scaleFactor;
+			this.cellSize = this.cellSize;
+
 			this.isolevel = 0.5;
 			this.dataStep = {
 				x: 1 / this.width,
@@ -58,8 +61,7 @@ pc.script.create('procedural', function (app) {
 				semantic: pc.SEMANTIC_POSITION,
 				components: 3,
 				type: pc.ELEMENTTYPE_FLOAT32
-			},
-			{
+			}, {
 				semantic: pc.SEMANTIC_NORMAL,
 				components: 3,
 				type: pc.ELEMENTTYPE_FLOAT32
@@ -71,11 +73,11 @@ pc.script.create('procedural', function (app) {
 			var buffers = this.getBuffers();
 
 			var vertexBuffer = new pc.VertexBuffer(
-				app.graphicsDevice,
-				vertexFormat,
-				buffers.vertexList.length / 3,
-				pc.BUFFER_STATIC
-			);
+					app.graphicsDevice,
+					vertexFormat,
+					buffers.vertexList.length / 3,
+					pc.BUFFER_STATIC
+					);
 
 			var vertices = new Float32Array(vertexBuffer.lock());
 
@@ -140,9 +142,9 @@ pc.script.create('procedural', function (app) {
 			this.noiseLookup = [];
 			var triangles = [];
 			var vertexLookup = [];
-			for(var z = 0; z < this.depth - 1; z++) {
-				for(var y = 0; y < this.height - 1; y++) {
-					for(var x = 0; x < this.width - 1; x++) {
+			for(var z = 0; z < this.depth - 1; z += this.cellSize) {
+				for(var y = 0; y < this.height - 1; y += this.cellSize) {
+					for(var x = 0; x < this.width - 1; x += this.cellSize){
 						var cube = this.getCubeAtPos(x,y,z, sampler);
 						PROCED.polygonize(cube, this.isolevel, triangles, getIdx, vertexLookup);
 					}
@@ -182,38 +184,39 @@ pc.script.create('procedural', function (app) {
 			var lookupVal = this.noiseLookup[idx];
 			if(lookupVal === undefined) {
 				value = 0;
-				
+
 				var limit = noise.perlin2(
-					x / 100 + this.dataStep.x,
-					z / 100 + this.dataStep.z
-				) * 30;
-				limit += 35;
+						x / 100 + this.dataStep.x,
+						z / 100 + this.dataStep.z
+						) * 30;
+				//limit += 35;
+				limit += 15;
 				if(y < limit) {
-					value += 1;
+					value += 0.90;
 				}
 				if(y > limit) {
-					value -= 0.25;
+					value -= 0.45;
 				}
 				if(y > limit) {
 					value += noise.simplex3(
-						x / 55 + this.dataStep.x, //Add a small number (dataStep) to input values because simplex and perlin noise always return 0 for integer inputs
-						y / 55 + this.dataStep.y,
-						z / 55 + this.dataStep.z
-					);
+							x / 65 + this.dataStep.x, //Add a small number (dataStep) to input values because simplex and perlin noise always return 0 for integer inputs
+							y / 65 + this.dataStep.y,
+							z / 65 + this.dataStep.z
+							);
 				}
 				else {
 					value += noise.simplex3(
-						x / 25 + this.dataStep.x, //Add a small number (dataStep) to input values because simplex and perlin noise always return 0 for integer inputs
-						y / 25 + this.dataStep.y,
-						z / 25 + this.dataStep.z
-					);
+							x / 20 + this.dataStep.x, //Add a small number (dataStep) to input values because simplex and perlin noise always return 0 for integer inputs
+							y / 20 + this.dataStep.y,
+							z / 20 + this.dataStep.z
+							) / 1.5;
 				}
 				//Adds detail, not just weird alien blobs
 				value += noise.simplex3(
-					x / 5 + this.dataStep.x,
-					y / 5 + this.dataStep.y,
-					z / 5 + this.dataStep.z
-				) / 15;
+						x / 3.5 + this.dataStep.x,
+						y / 3.5 + this.dataStep.y,
+						z / 3.5 + this.dataStep.z
+						) / 10;
 
 				this.noiseLookup[idx] = value;
 			}
@@ -234,59 +237,59 @@ pc.script.create('procedural', function (app) {
 			};
 			cube[1] = {
 				pos: {
-					x: x + 1,
+					x: x + this.cellSize,
 					y: y,
 					z: z
 				},
-				val: sampler(x + 1,y,z)
+				val: sampler(x + this.cellSize,y,z)
 			};
 			cube[2] = {
 				pos: {
-					x: x + 1,
+					x: x + this.cellSize,
 					y: y,
-					z: z + 1
+					z: z + this.cellSize 
 				},
-				val: sampler(x + 1,y,z + 1)
+				val: sampler(x + this.cellSize,y,z + this.cellSize)
 			};
 			cube[3] = {
 				pos: {
 					x: x,
 					y: y,
-					z: z + 1
+					z: z + this.cellSize 
 				},
-				val: sampler(x,y,z + 1)
+				val: sampler(x,y,z + this.cellSize)
 			};
 			cube[4] = {
 				pos: {
 					x: x,
-					y: y + 1,
+					y: y + this.cellSize,
 					z: z
 				},
-				val: sampler(x,y + 1, z)
+				val: sampler(x,y + this.cellSize, z)
 			};
 			cube[5] = {
 				pos: {
-					x: x + 1,
-					y: y + 1,
+					x: x + this.cellSize,
+					y: y + this.cellSize,
 					z: z
 				},
-				val: sampler(x + 1,y + 1,z)
+				val: sampler(x + this.cellSize,y + this.cellSize,z)
 			};
 			cube[6] = {
 				pos: {
-					x: x + 1,
-					y: y + 1,
-					z: z + 1
+					x: x + this.cellSize,
+					y: y + this.cellSize,
+					z: z + this.cellSize
 				},
-				val: sampler(x + 1, y + 1, z + 1)
+				val: sampler(x + this.cellSize, y + this.cellSize, z + this.cellSize)
 			};
 			cube[7] = {
 				pos: {
 					x: x,
-					y: y + 1,
-					z: z + 1
+					y: y + this.cellSize,
+					z: z + this.cellSize
 				},
-				val: sampler(x,y + 1, z + 1)
+				val: sampler(x,y + this.cellSize, z + this.cellSize)
 			};
 
 			return cube;
