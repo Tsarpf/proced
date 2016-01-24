@@ -1,5 +1,5 @@
 pc.script.create('first_person_camera', function (app) {
-	var SPEED = 300;
+	var SPEED = 600;
 
 	//var camPos = new pc.Vec3();
 	var FirstPersonCamera = function (entity) {
