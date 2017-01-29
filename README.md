@@ -43,9 +43,4 @@ Lookup tables:
 
 Rest of the code is a js port I made from the code I found at Paul Bourke's page above.
 
-#### surface-nets.js (MIT)
-I used browserify on the source from here: https://github.com/mikolalysenko/surface-nets.
-It's not used anywhere yet in the project.
-
 #### Everything else (MIT)
-By me, use however you wish!
